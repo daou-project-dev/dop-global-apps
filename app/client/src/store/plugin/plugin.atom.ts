@@ -70,6 +70,13 @@ export const GOOGLE_CALENDAR_FORM: PluginForm = {
   ],
 };
 
+export const SLACK_FORM: PluginForm = {
+  pluginId: 'slack-plugin',
+  pluginName: 'Slack',
+  authType: 'oAuth2',
+  formConfig: [],
+};
+
 // --- Atoms ---
 
 export const currentPluginAtom = atom<PluginForm>(S3_FORM);

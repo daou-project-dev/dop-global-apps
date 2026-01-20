@@ -8,6 +8,7 @@ import {
   S3_FORM,
   GOOGLE_SHEETS_FORM,
   GOOGLE_CALENDAR_FORM,
+  SLACK_FORM,
 } from './store';
 import { FormRenderer } from './components';
 
@@ -48,6 +49,16 @@ export function App() {
           onClick={() => switchPlugin(GOOGLE_CALENDAR_FORM)}
         >
           Google Calendar
+        </button>
+
+        <button
+          className={clsx(styles.pluginButton, {
+            [styles.pluginButtonActive]:
+              currentPlugin.pluginId === SLACK_FORM.pluginId,
+          })}
+          onClick={() => switchPlugin(SLACK_FORM)}
+        >
+          Slack
         </button>
       </div>
 
