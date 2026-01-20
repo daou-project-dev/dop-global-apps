@@ -1,0 +1,31 @@
+.button {
+  background-color: #08a7bf;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #4285f4;
+}
+
+.oauthButton {
+  width: 100%;
+  padding: 15px;
+  background-color: #4285f4;
+}
+
+.oauthButton:hover {
+  background-color: #357ae8;
+}
+
+.formFooter {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
