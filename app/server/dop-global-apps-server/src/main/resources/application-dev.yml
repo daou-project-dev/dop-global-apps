@@ -1,9 +1,9 @@
 # 개발 서버 환경 (PostgreSQL)
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:gappbe_dev}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:global-apps}
     driver-class-name: org.postgresql.Driver
-    username: ${DB_USERNAME:gappbe}
+    username: ${DB_USERNAME:global-apps}
     password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 10
@@ -25,7 +25,7 @@ pf4j:
 
 logging:
   level:
-    com.daou.gappbe: DEBUG
+    com.daou.dop.global.apps: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE

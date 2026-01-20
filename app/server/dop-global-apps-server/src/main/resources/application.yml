@@ -1,10 +1,12 @@
 # 공통 설정
 spring:
   application:
-    name: gappbe
+    name: global-apps
 
   profiles:
     active: local
+    group:
+      local: secret   # local 프로필 시 secret도 함께 로드
 
   threads:
     virtual:
@@ -13,11 +15,6 @@ spring:
   jpa:
     open-in-view: false
 
-# 암호화 설정
-encryption:
-  key: ${ENCRYPTION_KEY:dGVzdC1lbmNyeXB0aW9uLWtleS0zMi1ieXRlcw==}
-
-# PF4J 플러그인 설정
 pf4j:
   plugins-dir: ${PF4J_PLUGINS_DIR:./plugins}
   system-mode: ${PF4J_MODE:development}
@@ -25,6 +22,6 @@ pf4j:
 # 기본 로깅 설정
 logging:
   level:
-    com.daou.gappbe: INFO
+    com.daou.dop.global.apps: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: INFO

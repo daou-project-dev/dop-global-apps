@@ -1,7 +1,7 @@
 # 운영 환경 (PostgreSQL)
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:gappbe}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:global-apps}
     driver-class-name: org.postgresql.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -26,6 +26,6 @@ pf4j:
 
 logging:
   level:
-    com.daou.gappbe: INFO
+    com.daou.dop.global.apps: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: WARN

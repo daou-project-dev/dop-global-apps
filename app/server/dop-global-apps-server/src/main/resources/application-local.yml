@@ -1,20 +1,26 @@
-# 로컬 개발 환경 (H2 인메모리)
+# 로컬 개발 환경 (Docker PostgreSQL)
+jasypt:
+  encryptor:
+    password: local
+
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:localhost.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+
 spring:
   datasource:
-    url: jdbc:h2:mem:gappbe;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:postgresql://localhost:5432/global_apps
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -23,7 +29,8 @@ spring:
 
 logging:
   level:
-    com.daou.gappbe: DEBUG
+    com.daou.dop.global.apps: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.slack.api: DEBUG
