@@ -1,14 +1,16 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { currentDatasourceAtom, updateFormValueAtom } from '../../store/atoms';
-import type { ControlProps } from '../../store/types';
 import _ from 'lodash';
-import styles from './DropDownControl.module.css';
 
-export function DropDownControl(props: ControlProps) {
+import { currentDatasourceAtom, updateFormValueAtom } from '../../../store';
+
+import type { DropDownControlProps } from './types';
+import styles from './drop-down-control.module.css';
+
+export function DropDownControl(props: DropDownControlProps) {
   const { configProperty, label, options, hidden } = props;
   const updateFormValue = useSetAtom(updateFormValueAtom);
   const [datasource] = useAtom(currentDatasourceAtom);
-  
+
   const value = _.get(datasource, configProperty, '');
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

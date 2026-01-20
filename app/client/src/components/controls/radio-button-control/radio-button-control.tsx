@@ -1,15 +1,17 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { currentDatasourceAtom, updateFormValueAtom } from '../../store/atoms';
-import type { ControlProps } from '../../store/types';
 import _ from 'lodash';
-import styles from './RadioButtonControl.module.css';
 
-export function RadioButtonControl(props: ControlProps) {
-  const { configProperty, label, options, hidden } = props;
+import { currentDatasourceAtom, updateFormValueAtom } from '../../../store';
+
+import type { RadioButtonControlProps } from './types';
+import styles from './radio-button-control.module.css';
+
+export function RadioButtonControl(props: RadioButtonControlProps) {
+  const { configProperty, label, options, hidden, initialValue } = props;
   const updateFormValue = useSetAtom(updateFormValueAtom);
   const [datasource] = useAtom(currentDatasourceAtom);
-  
-  const value = _.get(datasource, configProperty, props.initialValue || '');
+
+  const value = _.get(datasource, configProperty, initialValue || '');
 
   const handleChange = (val: string) => {
     updateFormValue({ path: configProperty, value: val });
@@ -25,7 +27,7 @@ export function RadioButtonControl(props: ControlProps) {
           <label key={opt.value} className={styles.radioLabel}>
             <input
               type="radio"
-              name={configProperty} // Group by property name
+              name={configProperty}
               value={opt.value}
               checked={value === opt.value}
               onChange={() => handleChange(opt.value)}
