@@ -4,6 +4,8 @@ plugins {
 
 dependencies {
     implementation project(':dop-global-apps-core')
+    implementation(libs.slack.bolt)
+    implementation(libs.slack.api.client)
     annotationProcessor(libs.pf4j)
 }
 

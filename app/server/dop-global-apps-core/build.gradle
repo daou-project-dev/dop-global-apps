@@ -4,4 +4,10 @@ plugins {
 
 dependencies {
     api(libs.pf4j)
+    api(libs.jasypt.spring.boot.starter)
+    compileOnly(libs.slack.bolt)
+
+    // JPA AttributeConverter, Spring annotations
+    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.2.0'
+    compileOnly 'org.springframework:spring-context:7.0.1'
 }
