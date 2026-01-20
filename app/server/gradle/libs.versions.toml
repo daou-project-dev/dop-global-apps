@@ -1,0 +1,20 @@
+[versions]
+spring-boot = "4.0.1"
+spring-dependency-management = "1.1.7"
+pf4j = "3.14.1"
+pf4j-spring = "0.10.0"
+lombok = "1.18.42"
+h2 = "2.3.232"
+postgresql = "42.7.4"
+hypersistence-utils = "3.9.0"
+
+[libraries]
+pf4j = { module = "org.pf4j:pf4j", version.ref = "pf4j" }
+pf4j-spring = { module = "org.pf4j:pf4j-spring", version.ref = "pf4j-spring" }
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+hypersistence-utils = { module = "io.hypersistence:hypersistence-utils-hibernate-70", version.ref = "hypersistence-utils" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }

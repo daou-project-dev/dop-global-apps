@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+dependencies {
+    implementation project(':dop-global-apps-core')
+    annotationProcessor(libs.pf4j)
+}
+
+jar {
+    manifest {
+        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.slack.SlackPlugin',
+                   'Plugin-Id': 'slack-plugin',
+                   'Plugin-Version': '0.0.1',
+                   'Plugin-Provider': 'Daou Tech'
+    }
+}
