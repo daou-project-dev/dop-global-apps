@@ -1,0 +1,25 @@
+.container {
+  padding: 0;
+}
+
+.header {
+  margin: 0 0 24px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.placeholder {
+  color: #666;
+  font-size: 0.9375rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    color: #eee;
+  }
+
+  .placeholder {
+    color: #999;
+  }
+}

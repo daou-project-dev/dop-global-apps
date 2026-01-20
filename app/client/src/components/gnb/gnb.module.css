@@ -1,0 +1,82 @@
+.gnb {
+  width: 220px;
+  min-height: 100vh;
+  background-color: #1a1a2e;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+}
+
+.gnb.collapsed {
+  width: 60px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.logo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #08a7bf;
+}
+
+.toggleButton {
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  border-radius: 4px;
+}
+
+.toggleButton:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 12px 8px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  color: #aaa;
+  text-decoration: none;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.navItem:hover {
+  background-color: #2a2a3e;
+  color: #fff;
+}
+
+.navItem.active {
+  background-color: #08a7bf;
+  color: #fff;
+}
+
+.icon {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
