@@ -1,4 +1,4 @@
-# GAppBE 환경별 설정 가이드
+# Global Apps 환경별 설정 가이드
 
 ## 설정 파일 구조
 
@@ -24,12 +24,12 @@ src/main/resources/
 ./gradlew bootRun --args='--spring.profiles.active=local'
 
 # Java JAR
-java -jar gappbe-server.jar --spring.profiles.active=local
+java -jar dop-global-apps-server.jar --spring.profiles.active=local
 ```
 
 **H2 콘솔 접속**:
 - URL: http://localhost:8080/h2-console
-- JDBC URL: `jdbc:h2:mem:gappbe`
+- JDBC URL: `jdbc:h2:mem:global-apps`
 - Username: `sa`
 - Password: (비어있음)
 
@@ -44,8 +44,8 @@ java -jar gappbe-server.jar --spring.profiles.active=local
 # 환경 변수 설정
 export DB_HOST=dev-postgres.example.com
 export DB_PORT=5432
-export DB_NAME=gappbe_dev
-export DB_USERNAME=gappbe
+export DB_NAME=global-apps
+export DB_USERNAME=global-apps
 export DB_PASSWORD=your-password
 
 # 실행
@@ -54,7 +54,7 @@ export DB_PASSWORD=your-password
 
 **또는 인라인 설정**:
 ```bash
-./gradlew bootRun --args='--spring.profiles.active=dev --DB_HOST=localhost --DB_USERNAME=gappbe --DB_PASSWORD=dev123'
+./gradlew bootRun --args='--spring.profiles.active=dev --DB_HOST=localhost --DB_USERNAME=global-apps --DB_PASSWORD=dev123'
 ```
 
 ---
@@ -68,13 +68,13 @@ export DB_PASSWORD=your-password
 # 환경 변수 설정 (필수)
 export DB_HOST=prod-postgres.example.com
 export DB_PORT=5432
-export DB_NAME=gappbe
-export DB_USERNAME=gappbe_prod
+export DB_NAME=global-apps
+export DB_USERNAME=global-apps_prod
 export DB_PASSWORD=secure-password
 export ENCRYPTION_KEY=your-base64-encoded-256-bit-key
 
 # 실행
-java -jar gappbe-server.jar --spring.profiles.active=prod
+java -jar dop-global-apps-server.jar --spring.profiles.active=prod
 ```
 
 ---
@@ -109,8 +109,8 @@ java -jar gappbe-server.jar --spring.profiles.active=prod
 |--------|--------|------|
 | `DB_HOST` | localhost (dev) / 필수 (prod) | PostgreSQL 호스트 |
 | `DB_PORT` | 5432 | PostgreSQL 포트 |
-| `DB_NAME` | gappbe_dev (dev) / gappbe (prod) | 데이터베이스명 |
-| `DB_USERNAME` | gappbe (dev) / 필수 (prod) | DB 사용자명 |
+| `DB_NAME` | global-apps | 데이터베이스명 |
+| `DB_USERNAME` | global-apps (dev) / 필수 (prod) | DB 사용자명 |
 | `DB_PASSWORD` | 필수 | DB 비밀번호 |
 
 ---
@@ -138,7 +138,7 @@ java -jar gappbe-server.jar --spring.profiles.active=prod
 
 ```bash
 # 특정 패키지 로그 레벨 변경
-./gradlew bootRun --args='--spring.profiles.active=local --logging.level.com.daou.gappbe=TRACE'
+./gradlew bootRun --args='--spring.profiles.active=local --logging.level.com.daou.dop.global.apps=TRACE'
 
 # SQL 로깅 비활성화
 ./gradlew bootRun --args='--spring.profiles.active=local --logging.level.org.hibernate.SQL=WARN'
@@ -151,7 +151,7 @@ java -jar gappbe-server.jar --spring.profiles.active=prod
 ### H2 콘솔 접속 안됨
 - 프로파일이 `local`인지 확인
 - URL: `http://localhost:8080/h2-console`
-- JDBC URL: `jdbc:h2:mem:gappbe` (정확히 입력)
+- JDBC URL: `jdbc:h2:mem:global-apps` (정확히 입력)
 
 ### PostgreSQL 연결 실패
 ```bash
@@ -183,7 +183,7 @@ lsof -ti:8080 | xargs kill -9
    - Dev: `--spring.profiles.active=dev`
 3. **Environment variables** (Dev/Prod):
    ```
-   DB_HOST=localhost;DB_USERNAME=gappbe;DB_PASSWORD=dev123
+   DB_HOST=localhost;DB_USERNAME=global-apps;DB_PASSWORD=dev123
    ```
 
 ### VS Code
@@ -194,20 +194,20 @@ lsof -ti:8080 | xargs kill -9
   "configurations": [
     {
       "type": "java",
-      "name": "GAppBE Local",
+      "name": "Global Apps Local",
       "request": "launch",
-      "mainClass": "com.daou.gappbe.server.GAppBeServerApplication",
+      "mainClass": "com.daou.dop.global.apps.server.GlobalAppsServerApplication",
       "args": "--spring.profiles.active=local"
     },
     {
       "type": "java",
-      "name": "GAppBE Dev",
+      "name": "Global Apps Dev",
       "request": "launch",
-      "mainClass": "com.daou.gappbe.server.GAppBeServerApplication",
+      "mainClass": "com.daou.dop.global.apps.server.GlobalAppsServerApplication",
       "args": "--spring.profiles.active=dev",
       "env": {
         "DB_HOST": "localhost",
-        "DB_USERNAME": "gappbe",
+        "DB_USERNAME": "global-apps",
         "DB_PASSWORD": "dev123"
       }
     }

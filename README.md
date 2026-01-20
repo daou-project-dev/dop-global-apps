@@ -30,7 +30,7 @@ cd app/server
 ```bash
 cd app/server
 export DB_HOST=localhost
-export DB_USERNAME=gappbe
+export DB_USERNAME=global-apps
 export DB_PASSWORD=dev123
 ./gradlew bootRun --args='--spring.profiles.active=dev'
 ```
@@ -54,7 +54,7 @@ export DB_PASSWORD=dev123
 ## 문서
 
 상세 문서는 `.claude/docs/` 디렉토리 참조:
-- [구현 가이드](/.claude/docs/GAPPBE_IMPLEMENTATION.md)
+- [구현 가이드](/.claude/docs/GLOBAL_APPS_IMPLEMENTATION.md)
 - [실행 계획](/.claude/docs/IMPLEMENTATION_PLAN.md)
 - [PF4J 아키텍처](/.claude/docs/PF4J_ARCHITECTURE.md)
 - [프로젝트 구조](/.claude/docs/PROJECT_STRUCTURE.md)
