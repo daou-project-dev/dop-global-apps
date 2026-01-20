@@ -18,4 +18,5 @@
 
 ## 모듈별 가이드
 
+- **Frontend**: [app/client/CLAUDE.md](app/client/CLAUDE.md)
 - **Backend**: [app/server/CLAUDE.md](app/server/CLAUDE.md)
