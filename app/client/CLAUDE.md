@@ -258,3 +258,95 @@ const hasAccess = user.role === 'admin' && subscription.isActive;
 // 사용자 이름 가져오기
 const userName = user.name;
 ```
+
+---
+
+## 타입 명세 (Backend 참조용)
+
+> 위치: `src/store/types.ts`
+
+### PluginForm
+
+플러그인 폼 설정 정의. 백엔드에서 JSON 형태로 제공.
+
+```typescript
+interface PluginForm {
+  pluginId: string;      // 플러그인 고유 식별자
+  pluginName: string;    // 플러그인 표시명
+  authType: 'oAuth2' | 'form';  // 인증 방식
+  formConfig: ControlProps[];   // 폼 컨트롤 배열
+}
+```
+
+### ControlProps
+
+개별 폼 컨트롤 설정.
+
+```typescript
+type ControlType = 'INPUT_TEXT' | 'DROP_DOWN' | 'CHECKBOX' | 'RADIO_BUTTON';
+
+interface ControlProps {
+  controlType: ControlType;           // 컨트롤 유형
+  label: string;                      // 라벨 텍스트
+  configProperty: string;             // 값 저장 경로 (lodash path 형식)
+  dataType?: 'PASSWORD' | 'TEXT';     // INPUT_TEXT 전용: 입력 타입
+  initialValue?: unknown;             // 초기값
+  options?: SelectOption[];           // DROP_DOWN, RADIO_BUTTON 전용
+  hidden?: boolean;                   // 숨김 여부
+}
+
+interface SelectOption {
+  label: string;  // 표시 텍스트
+  value: string;  // 실제 값
+}
+```
+
+### Datasource
+
+데이터소스 상태 객체.
+
+```typescript
+interface Datasource {
+  id: string;
+  name: string;
+  pluginId: string;
+  datasourceConfiguration: DatasourceConfig;
+}
+
+interface DatasourceConfig {
+  authenticationType?: 'oAuth2' | 'base' | 'form';
+  [key: string]: unknown;  // configProperty 경로에 따라 동적 저장
+}
+```
+
+### 예시: Backend JSON 응답
+
+```json
+{
+  "pluginId": "s3-plugin-id",
+  "pluginName": "Amazon S3",
+  "authType": "form",
+  "formConfig": [
+    {
+      "controlType": "INPUT_TEXT",
+      "label": "Access Key ID",
+      "configProperty": "datasourceConfiguration.authentication.username"
+    },
+    {
+      "controlType": "INPUT_TEXT",
+      "label": "Secret Access Key",
+      "configProperty": "datasourceConfiguration.authentication.password",
+      "dataType": "PASSWORD"
+    },
+    {
+      "controlType": "DROP_DOWN",
+      "label": "Region",
+      "configProperty": "datasourceConfiguration.region",
+      "options": [
+        { "label": "us-east-1", "value": "us-east-1" },
+        { "label": "ap-northeast-2", "value": "ap-northeast-2" }
+      ]
+    }
+  ]
+}
+```
