@@ -19,7 +19,7 @@ CREATE TABLE plugin (
     icon_url VARCHAR(500),
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE INDEX idx_plugin_status ON plugin(status);
@@ -42,7 +42,7 @@ CREATE TABLE company (
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     metadata TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE INDEX idx_company_status ON company(status);
@@ -114,7 +114,7 @@ CREATE TABLE oauth_credential (
     scope TEXT,
     expires_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE INDEX idx_oauth_credential_connection ON oauth_credential(connection_id);
@@ -134,7 +134,7 @@ CREATE TABLE apikey_credential (
     api_key TEXT NOT NULL,
     api_secret TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE INDEX idx_apikey_credential_connection ON apikey_credential(connection_id);
