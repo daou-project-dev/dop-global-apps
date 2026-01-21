@@ -1,0 +1,23 @@
+{
+  "pluginId": "slack",
+  "pluginName": "Slack",
+  "authType": "oAuth2",
+  "formConfig": [
+    {
+      "controlType": "INPUT_TEXT",
+      "label": "OAuth Scope",
+      "configProperty": "datasourceConfiguration.authentication.scope",
+      "dataType": "TEXT",
+      "initialValue": "channels:read,chat:write,users:read",
+      "hidden": false
+    },
+    {
+      "controlType": "INPUT_TEXT",
+      "label": "Redirect URI",
+      "configProperty": "datasourceConfiguration.authentication.redirectUri",
+      "dataType": "TEXT",
+      "initialValue": "",
+      "hidden": true
+    }
+  ]
+}

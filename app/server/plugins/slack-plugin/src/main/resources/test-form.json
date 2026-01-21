@@ -1,0 +1,75 @@
+{
+  "pluginId": "slack",
+  "tabs": [
+    {
+      "tabId": "conversations.list",
+      "tabName": "채널 목록 조회",
+      "description": "워크스페이스의 채널 목록을 조회합니다.",
+      "controls": [
+        {
+          "controlType": "INPUT_TEXT",
+          "label": "Limit",
+          "name": "limit",
+          "placeholder": "100",
+          "required": false,
+          "initialValue": "100"
+        },
+        {
+          "controlType": "CHECKBOX",
+          "label": "Exclude Archived",
+          "name": "excludeArchived",
+          "required": false,
+          "initialValue": "true"
+        }
+      ],
+      "api": {
+        "method": "POST",
+        "uri": "conversations.list"
+      }
+    },
+    {
+      "tabId": "users.list",
+      "tabName": "사용자 목록 조회",
+      "description": "워크스페이스의 사용자 목록을 조회합니다.",
+      "controls": [
+        {
+          "controlType": "INPUT_TEXT",
+          "label": "Limit",
+          "name": "limit",
+          "placeholder": "100",
+          "required": false,
+          "initialValue": "100"
+        }
+      ],
+      "api": {
+        "method": "POST",
+        "uri": "users.list"
+      }
+    },
+    {
+      "tabId": "chat.postMessage",
+      "tabName": "메시지 전송",
+      "description": "지정한 채널에 메시지를 전송합니다.",
+      "controls": [
+        {
+          "controlType": "INPUT_TEXT",
+          "label": "Channel",
+          "name": "channel",
+          "placeholder": "C0123456789",
+          "required": true
+        },
+        {
+          "controlType": "TEXTAREA",
+          "label": "Message",
+          "name": "text",
+          "placeholder": "Hello, World!",
+          "required": true
+        }
+      ],
+      "api": {
+        "method": "POST",
+        "uri": "chat.postMessage"
+      }
+    }
+  ]
+}
