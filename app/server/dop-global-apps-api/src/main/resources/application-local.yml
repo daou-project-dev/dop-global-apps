@@ -23,7 +23,6 @@ spring:
     password: postgres
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate  # Flyway가 스키마 관리
     show-sql: true
