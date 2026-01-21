@@ -1,0 +1,42 @@
+.panel {
+  margin-top: 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.status {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.statusSuccess {
+  color: #38a169;
+}
+
+.statusError {
+  color: #e53e3e;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.content {
+  padding: 12px;
+  background-color: #282c34;
+  color: #abb2bf;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  max-height: 300px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
