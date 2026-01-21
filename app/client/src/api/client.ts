@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// 개발 환경: /api prefix 사용 (Vite 프록시)
+// 프로덕션 환경: VITE_API_BASE_URL 직접 사용
+const BASE_URL = import.meta.env.DEV ? '/api' : import.meta.env.VITE_API_BASE_URL;
 
 export interface ApiResponse<T> {
   data: T;

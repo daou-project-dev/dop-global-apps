@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import clsx from 'clsx';
 
@@ -10,9 +9,10 @@ import {
   GOOGLE_SHEETS_FORM,
   GOOGLE_CALENDAR_FORM,
   SLACK_FORM,
+  SLACK_TEST_FORM,
 } from '../../store';
 import { FormRenderer } from '../../components';
-import { datasourceApi } from './api';
+import { TestFormRenderer } from './components/test-form-renderer';
 
 import styles from './plugin-auth-page.module.css';
 
@@ -20,28 +20,25 @@ export function PluginAuthPage() {
   const [currentPlugin] = useAtom(currentPluginAtom);
   const [currentDatasource] = useAtom(currentDatasourceAtom);
   const switchPlugin = useSetAtom(switchPluginAtom);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    setError(null);
+  const handleSubmit = () => {
+    // Slack OAuth: 팝업으로 인증 진행
+    if (currentPlugin.pluginId === SLACK_FORM.pluginId && currentPlugin.authType === 'oAuth2') {
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
 
-    try {
-      const response = await datasourceApi.create(currentDatasource);
-
-      if (response.data.redirectUrl) {
-        window.location.href = response.data.redirectUrl;
-        return;
-      }
-
-      alert('저장 완료');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '저장 실패';
-      setError(message);
-    } finally {
-      setIsSubmitting(false);
+      window.open(
+        `${import.meta.env.VITE_API_BASE_URL}/slack/install`,
+        'slack-oauth',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+      return;
     }
+
+    // TODO: 다른 플러그인 저장 API 구현 후 활성화
+    alert('저장 기능 준비 중 (Slack만 지원)');
   };
 
   return (
@@ -90,17 +87,16 @@ export function PluginAuthPage() {
         <h1 className={styles.header}>Configuring: {currentPlugin.pluginName}</h1>
 
         <div className={styles.formWrapper}>
-          <FormRenderer
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-          />
-
-          {error && <p className={styles.errorMessage}>{error}</p>}
+          <FormRenderer onSubmit={handleSubmit} />
         </div>
 
         <pre className={styles.jsonPreview}>
           {JSON.stringify(currentDatasource, null, 2)}
         </pre>
+
+        {currentPlugin.pluginId === SLACK_FORM.pluginId && (
+          <TestFormRenderer testForm={SLACK_TEST_FORM} />
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 
 import type { PluginForm } from '../types';
+export { SLACK_TEST_FORM } from './slack-test-form';
 
 // --- Mock Data ---
 
@@ -71,7 +72,7 @@ export const GOOGLE_CALENDAR_FORM: PluginForm = {
 };
 
 export const SLACK_FORM: PluginForm = {
-  pluginId: 'slack-plugin',
+  pluginId: 'slack',
   pluginName: 'Slack',
   authType: 'oAuth2',
   formConfig: [],
