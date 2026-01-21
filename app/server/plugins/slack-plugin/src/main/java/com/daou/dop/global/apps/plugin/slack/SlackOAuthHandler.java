@@ -19,9 +19,15 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Slack OAuth 핸들러 구현
+ * Slack OAuth 핸들러 구현 (V1 - Legacy)
+ *
+ * @deprecated V2 (SlackOAuthHandlerV2) 사용 권장.
+ *             V2는 DB에서 PluginConfig를 주입받아 설정을 관리함.
+ *             이 클래스는 slack.properties 파일에 의존하며,
+ *             향후 버전에서 제거될 예정.
  */
-@Extension
+@Deprecated
+// @Extension  // V2 우선 사용을 위해 비활성화
 public class SlackOAuthHandler implements OAuthHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SlackOAuthHandler.class);
