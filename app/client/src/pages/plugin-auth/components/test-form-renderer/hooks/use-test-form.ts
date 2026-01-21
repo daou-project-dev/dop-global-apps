@@ -88,16 +88,22 @@ export function useTestForm({ testForm }: UseTestFormOptions): UseTestFormReturn
     setIsLoading(true);
 
     try {
-      const { method, uri, bodyTemplate } = activeTab.api;
-      const body = bodyTemplate ? replaceTemplate(bodyTemplate, inputs) : '{}';
-      const teamId = inputs.teamId ?? '';
+      const { uri } = activeTab.api;
+
+      // inputs를 params로 변환 (빈 문자열 제외)
+      const params: Record<string, unknown> = {
+        externalId: 'T0A8Q035DED', // TODO: 동적으로 변경 필요
+      };
+      Object.entries(inputs).forEach(([key, value]) => {
+        if (value !== '') {
+          params[key] = value;
+        }
+      });
 
       const response = await slackApi.execute({
-        plugin: 'slack',
-        method,
-        uri,
-        teamId,
-        body,
+        pluginId: testForm.pluginId,
+        action: uri,
+        params,
       });
 
       const { success, body: responseBody, error } = response.data;

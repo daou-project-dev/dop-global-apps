@@ -26,7 +26,6 @@ export default defineConfig({
         target: 'https://localhost:8443',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },

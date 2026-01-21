@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import clsx from 'clsx';
 
@@ -9,29 +10,50 @@ import {
   GOOGLE_SHEETS_FORM,
   GOOGLE_CALENDAR_FORM,
   SLACK_FORM,
-  SLACK_TEST_FORM,
 } from '../../store';
+import type { PluginForm } from '../../store/types';
 import { FormRenderer } from '../../components';
 import { TestFormRenderer } from './components/test-form-renderer';
+import { useFetchPluginForm } from './hooks/use-fetch-plugin-form';
 
 import styles from './plugin-auth-page.module.css';
 
+const SLACK_PLUGIN_ID = 'slack';
+
 export function PluginAuthPage() {
-  const [currentPlugin] = useAtom(currentPluginAtom);
+  const [currentPlugin, setCurrentPlugin] = useAtom(currentPluginAtom);
   const [currentDatasource] = useAtom(currentDatasourceAtom);
   const switchPlugin = useSetAtom(switchPluginAtom);
 
+  // Slack 플러그인 선택 시 서버에서 폼 데이터 fetch
+  const [selectedPluginId, setSelectedPluginId] = useState<string | null>(null);
+  const { formConfig, testForm, isLoading, error } = useFetchPluginForm(selectedPluginId);
+
+  const handlePluginSelect = (plugin: PluginForm, fetchFromServer = false) => {
+    if (fetchFromServer) {
+      setSelectedPluginId(plugin.pluginId);
+    } else {
+      setSelectedPluginId(null);
+      switchPlugin(plugin);
+    }
+  };
+
+  // 서버에서 폼 데이터 fetch 완료 시 currentPlugin 업데이트
+  if (formConfig && currentPlugin.pluginId !== formConfig.pluginId) {
+    setCurrentPlugin(formConfig);
+  }
+
   const handleSubmit = () => {
     // Slack OAuth: 팝업으로 인증 진행
-    if (currentPlugin.pluginId === SLACK_FORM.pluginId && currentPlugin.authType === 'oAuth2') {
+    if (currentPlugin.pluginId === SLACK_PLUGIN_ID && currentPlugin.authType === 'oAuth2') {
       const width = 600;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
 
       window.open(
-        `${import.meta.env.VITE_API_BASE_URL}/slack/install`,
-        'slack-oauth',
+        `${import.meta.env.VITE_API_BASE_URL}/oauth/${currentPlugin.pluginId}/install`,
+        'plugin-oauth',
         `width=${width},height=${height},left=${left},top=${top}`
       );
       return;
@@ -50,7 +72,7 @@ export function PluginAuthPage() {
             [styles.pluginButtonActive]:
               currentPlugin.pluginId === S3_FORM.pluginId,
           })}
-          onClick={() => switchPlugin(S3_FORM)}
+          onClick={() => handlePluginSelect(S3_FORM)}
         >
           Amazon S3
         </button>
@@ -59,7 +81,7 @@ export function PluginAuthPage() {
             [styles.pluginButtonActive]:
               currentPlugin.pluginId === GOOGLE_SHEETS_FORM.pluginId,
           })}
-          onClick={() => switchPlugin(GOOGLE_SHEETS_FORM)}
+          onClick={() => handlePluginSelect(GOOGLE_SHEETS_FORM)}
         >
           Google Sheets (OAuth)
         </button>
@@ -68,16 +90,16 @@ export function PluginAuthPage() {
             [styles.pluginButtonActive]:
               currentPlugin.pluginId === GOOGLE_CALENDAR_FORM.pluginId,
           })}
-          onClick={() => switchPlugin(GOOGLE_CALENDAR_FORM)}
+          onClick={() => handlePluginSelect(GOOGLE_CALENDAR_FORM)}
         >
           Google Calendar
         </button>
         <button
           className={clsx(styles.pluginButton, {
             [styles.pluginButtonActive]:
-              currentPlugin.pluginId === SLACK_FORM.pluginId,
+              currentPlugin.pluginId === SLACK_PLUGIN_ID,
           })}
-          onClick={() => switchPlugin(SLACK_FORM)}
+          onClick={() => handlePluginSelect(SLACK_FORM, true)}
         >
           Slack
         </button>
@@ -86,16 +108,21 @@ export function PluginAuthPage() {
       <div className={styles.mainContent}>
         <h1 className={styles.header}>Configuring: {currentPlugin.pluginName}</h1>
 
-        <div className={styles.formWrapper}>
-          <FormRenderer onSubmit={handleSubmit} />
-        </div>
+        {isLoading && <p>Loading plugin configuration...</p>}
+        {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
-        <pre className={styles.jsonPreview}>
-          {JSON.stringify(currentDatasource, null, 2)}
-        </pre>
+        {!isLoading && (
+          <>
+            <div className={styles.formWrapper}>
+              <FormRenderer onSubmit={handleSubmit} />
+            </div>
 
-        {currentPlugin.pluginId === SLACK_FORM.pluginId && (
-          <TestFormRenderer testForm={SLACK_TEST_FORM} />
+            <pre className={styles.jsonPreview}>
+              {JSON.stringify(currentDatasource, null, 2)}
+            </pre>
+
+            {testForm && <TestFormRenderer testForm={testForm} />}
+          </>
         )}
       </div>
     </div>
