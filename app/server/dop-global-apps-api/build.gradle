@@ -10,9 +10,22 @@ bootRun {
 }
 
 dependencies {
+    // 도메인 및 인프라 모듈
+    implementation project(':dop-global-apps-domain')
+    runtimeOnly project(':dop-global-apps-infrastructure')
+
+    // 플러그인 SDK
+    implementation project(':plugins:plugin-sdk')
+
+    // Legacy (V1 지원용, 추후 제거)
     implementation project(':dop-global-apps-core')
+
+    // Spring
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // PF4J
     implementation(libs.pf4j.spring)
     implementation(libs.slack.bolt)
 
@@ -22,8 +35,7 @@ dependencies {
     // PostgreSQL (운영)
     runtimeOnly(libs.postgresql)
 
-    // 테스트용: slack-plugin을 런타임에 포함 (개발 편의성)
-    // 실제 배포 시에는 jar를 외부 로딩하지만, IDE 구동 시에는 이렇게 함.
+    // 플러그인 런타임 로딩
     runtimeOnly project(':plugins:slack-plugin')
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

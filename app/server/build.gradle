@@ -21,6 +21,13 @@ allprojects {
         mavenCentral()
     }
 
+    // Spring Boot BOM 적용 (버전 관리)
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:3.5.0"
+        }
+    }
+
     configurations.all {
         exclude group: 'org.slf4j', module: 'slf4j-reload4j'
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'

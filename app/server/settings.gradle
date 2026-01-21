@@ -1,5 +1,8 @@
 rootProject.name = 'dop-global-apps'
 
 include 'dop-global-apps-core'
-include 'dop-global-apps-server'
+include 'dop-global-apps-domain'
+include 'dop-global-apps-infrastructure'
+include 'dop-global-apps-api'
+include 'plugins:plugin-sdk'
 include 'plugins:slack-plugin'
