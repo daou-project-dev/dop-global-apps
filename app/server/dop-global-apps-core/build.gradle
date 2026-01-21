@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+    api project(':dop-global-apps-domain')
+
     api(libs.pf4j)
     api(libs.jasypt.spring.boot.starter)
     compileOnly(libs.slack.bolt)

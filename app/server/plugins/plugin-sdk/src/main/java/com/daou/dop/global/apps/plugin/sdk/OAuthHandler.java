@@ -3,14 +3,8 @@ package com.daou.dop.global.apps.plugin.sdk;
 import org.pf4j.ExtensionPoint;
 
 /**
- * OAuth 처리를 위한 플러그인 확장점 (V2)
+ * OAuth 처리를 위한 플러그인 확장점
  * 각 플러그인(Slack, Teams, Google 등)에서 구현
- *
- * <p>V1과의 차이점:
- * <ul>
- *   <li>PluginConfig를 메서드 파라미터로 전달받음 (properties 파일 불필요)</li>
- *   <li>토큰 갱신/폐기 메서드 추가</li>
- * </ul>
  */
 public interface OAuthHandler extends ExtensionPoint {
 

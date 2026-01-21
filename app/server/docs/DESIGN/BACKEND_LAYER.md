@@ -18,8 +18,8 @@
 
 ```
 server/
-├── dop-global-apps-core/           # 내부 유틸리티 (추후 구조 변경 예정)
-├── dop-global-apps-domain/         # Entity, Enum, Repository 인터페이스
+├── dop-global-apps-core/           # Repository Port 인터페이스, StateStorage
+├── dop-global-apps-domain/         # Entity, Enum
 ├── dop-global-apps-infrastructure/ # 기술 구현체 (JPA, Redis, Kafka, Crypto)
 ├── dop-global-apps-api/            # Controller, Service (Entry Point)
 │
@@ -71,48 +71,64 @@ dependencies {
 
 > 상세 내용: [PLUGIN.md](PLUGIN.md) 참조
 
-### 2.2 domain (도메인 모델)
+### 2.2 core (핵심 인터페이스)
+
+```
+com.daou.dop.global.apps.core/
+├── repository/                      # Repository Port 인터페이스
+│   ├── PluginRepository.java
+│   ├── PluginConnectionRepository.java
+│   └── OAuthCredentialRepository.java
+│
+└── oauth/
+    └── StateStorage.java            # OAuth State 저장소 인터페이스
+```
+
+**원칙**:
+- Repository Port 인터페이스 (DIP)
+- api와 infrastructure 사이의 추상화 계층
+- Spring 의존성 최소화
+
+**의존성**:
+```groovy
+dependencies {
+    api project(':dop-global-apps-domain')
+}
+```
+
+### 2.3 domain (도메인 모델)
 
 ```
 com.daou.dop.global.apps.domain/
 ├── plugin/
-│   ├── Plugin.java                  # Entity
-│   └── PluginRepository.java        # Repository 인터페이스
+│   └── Plugin.java                  # Entity
 │
 ├── company/
-│   ├── Company.java
-│   └── CompanyRepository.java
+│   └── Company.java
 │
 ├── user/
-│   ├── User.java
-│   └── UserRepository.java
+│   └── User.java
 │
 ├── connection/
-│   ├── PluginConnection.java
-│   └── PluginConnectionRepository.java
+│   └── PluginConnection.java
 │
 ├── credential/
 │   ├── OAuthCredential.java
-│   ├── OAuthCredentialRepository.java
-│   ├── ApiKeyCredential.java
-│   └── ApiKeyCredentialRepository.java
+│   └── ApiKeyCredential.java
 │
-├── enums/
-│   ├── AuthType.java
-│   ├── ScopeType.java
-│   ├── ConnectionStatus.java
-│   ├── PluginStatus.java
-│   ├── CompanyStatus.java
-│   └── UserStatus.java
-│
-└── cache/
-    └── TokenCacheRepository.java    # 캐시 인터페이스
+└── enums/
+    ├── AuthType.java
+    ├── ScopeType.java
+    ├── ConnectionStatus.java
+    ├── PluginStatus.java
+    ├── CompanyStatus.java
+    └── UserStatus.java
 ```
 
 **원칙**:
-- Entity, Enum, Repository 인터페이스
+- Entity, Enum만 포함
 - JPA 어노테이션 사용 (`jakarta.persistence-api`)
-- 구현체 없음 (인터페이스만)
+- 순수 도메인 객체
 
 **의존성**:
 ```groovy
@@ -121,17 +137,20 @@ dependencies {
 }
 ```
 
-### 2.3 infrastructure (기술 구현체)
+### 2.4 infrastructure (기술 구현체)
 
 ```
 com.daou.dop.global.apps.infrastructure/
-├── persistence/                     # DB (JPA)
+├── persistence/                     # DB (JPA) - core Repository 구현
 │   ├── JpaPluginRepository.java
 │   ├── JpaCompanyRepository.java
 │   ├── JpaUserRepository.java
 │   ├── JpaPluginConnectionRepository.java
 │   ├── JpaOAuthCredentialRepository.java
 │   └── JpaApiKeyCredentialRepository.java
+│
+├── oauth/                           # OAuth 관련 구현
+│   └── InMemoryStateStorage.java    # StateStorage 구현
 │
 ├── cache/                           # 캐시 (Redis)
 │   ├── RedisCacheConfig.java
@@ -150,69 +169,79 @@ com.daou.dop.global.apps.infrastructure/
 ├── external/                        # 외부 API
 │   └── RestClientConfig.java
 │
-└── config/                          # 기타 설정
-    ├── JpaConfig.java
-    └── AsyncConfig.java
+├── config/                          # 기타 설정
+│   ├── JpaConfig.java
+│   └── AsyncConfig.java
+│
+└── resources/
+    └── db/migration/                # Flyway 마이그레이션 파일
+        ├── develop/                 # 개발 환경
+        │   └── V1__create_tables.sql
+        └── release/                 # 운영 환경
+            └── V1__create_tables.sql
 ```
 
 **원칙**:
-- domain의 Repository 인터페이스 구현
+- core의 Repository Port 인터페이스 구현
 - 모든 기술 구현체 (JPA, Redis, Kafka 등)
 - 설정 클래스
 
 **의존성**:
 ```groovy
 dependencies {
+    implementation project(':dop-global-apps-core')
     implementation project(':dop-global-apps-domain')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter'
+
+    // Flyway (DB 마이그레이션)
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
 }
 ```
 
-### 2.4 api (애플리케이션)
+### 2.5 api (애플리케이션)
 
 ```
 com.daou.dop.global.apps.api/
-├── controller/
-│   ├── PluginController.java        # 플러그인 목록/상세
-│   ├── ConnectionController.java    # 연동 관리
-│   ├── OAuthController.java         # OAuth 콜백
-│   └── ExecuteController.java       # API 실행
-│
-├── service/
-│   ├── PluginService.java           # 플러그인 조회
-│   ├── ConnectionService.java       # 연동 생성/조회/삭제
-│   ├── OAuthService.java            # OAuth 플로우
-│   ├── CredentialService.java       # 토큰/API Key 관리
-│   └── ExecuteService.java          # 플러그인 API 실행
-│
-├── dto/
-│   ├── request/
-│   │   ├── ExecuteRequest.java
-│   │   └── ConnectionRequest.java
-│   └── response/
-│       ├── PluginResponse.java
-│       └── ConnectionResponse.java
+├── oauth/
+│   └── controller/
+│       └── PluginOAuthController.java  # OAuth 설치/콜백
 │
 ├── plugin/
-│   └── PluginRegistry.java          # 플러그인 확장점 관리
+│   ├── service/
+│   │   └── PluginService.java          # 플러그인 조회
+│   └── PluginRegistry.java             # 플러그인 확장점 관리
 │
-└── DopGlobalAppsApplication.java    # Entry Point
+├── connection/
+│   └── service/
+│       └── ConnectionService.java      # 연동 생성/조회/삭제
+│
+├── execute/
+│   ├── ExecuteController.java          # API 실행 엔드포인트
+│   └── PluginExecutorService.java      # 플러그인 실행
+│
+└── DopGlobalAppsApiApplication.java    # Entry Point
 ```
 
 **원칙**:
 - Controller + Service
-- API용 Request/Response DTO
+- core의 Repository Port 인터페이스 의존 (infrastructure 직접 의존 X)
 - Spring Boot Entry Point
 
 **의존성**:
 ```groovy
 dependencies {
+    // Core (Repository Port, domain 포함)
+    implementation project(':dop-global-apps-core')
+
+    // Infrastructure (Repository 구현체, JpaConfig 포함)
+    implementation project(':dop-global-apps-infrastructure')
+
+    // 플러그인
     implementation project(':plugins:plugin-sdk')
-    implementation project(':dop-global-apps-domain')
-    runtimeOnly project(':dop-global-apps-infrastructure')
     runtimeOnly project(':plugins:slack-plugin')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -220,16 +249,15 @@ dependencies {
 }
 ```
 
-### 2.5 plugins/slack-plugin (플러그인 구현체)
+> **Note**: `@EntityScan(basePackages = "com.daou.dop")`은 Application 클래스에서 설정
+
+### 2.6 plugins/slack-plugin (플러그인 구현체)
 
 ```
 com.daou.dop.global.apps.plugin.slack/
 ├── SlackPlugin.java                 # PF4J Plugin 진입점
 ├── SlackOAuthHandler.java           # @Extension - OAuth 처리
-├── SlackPluginExecutor.java         # @Extension - API 실행
-└── handler/
-    ├── EventHandler.java            # 이벤트 처리 (추후)
-    └── CommandHandler.java          # 슬래시 커맨드 (추후)
+└── SlackPluginExecutor.java         # @Extension - API 실행
 ```
 
 **의존성**:
@@ -246,62 +274,77 @@ dependencies {
 ## 3. 레이어 다이어그램
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         api 모듈                             │
+┌────────────────────────────────────────────────────────────┐
+│                         api 모듈                           │
 │  ┌─────────────────────────────────────────────────────┐   │
-│  │ Controller                                           │   │
-│  │  PluginCtrl, ConnectionCtrl, OAuthCtrl, ExecuteCtrl  │   │
+│  │ Controller                                          │   │
+│  │  OAuthCtrl, ExecuteCtrl                             │   │
 │  └────────────────────────┬────────────────────────────┘   │
-│                           │                                 │
+│                           │                                │
 │  ┌────────────────────────▼────────────────────────────┐   │
-│  │ Service                                              │   │
-│  │  PluginSvc, ConnectionSvc, OAuthSvc, ExecuteSvc      │   │
+│  │ Service                                             │   │
+│  │  PluginSvc, ConnectionSvc, PluginExecutorSvc        │   │
 │  └────────────────────────┬────────────────────────────┘   │
-└───────────────────────────┼─────────────────────────────────┘
+└───────────────────────────┼────────────────────────────────┘
                             │
-          ┌─────────────────┼─────────────────┐
-          │                 │                 │
-          ▼                 ▼                 ▼
-┌─────────────────┐  ┌─────────────┐  ┌─────────────────┐
-│  plugin-sdk     │  │ domain 모듈 │  │infrastructure 모듈│
-│                 │  │             │  │                 │
-│ PluginExecutor  │  │ Entity      │  │ JpaRepository   │
-│ OAuthHandler    │  │ Enum        │  │ RedisCache      │
-│ DTO             │  │ Repository  │  │ Kafka           │
-│                 │  │ (interface) │  │ Crypto          │
-└────────┬────────┘  └──────▲──────┘  └────────┬────────┘
-         │                  │                  │
-         │                  └──────────────────┘
-         │                        구현
-         ▼
-┌─────────────────┐
-│  slack-plugin   │
-│  google-plugin  │
-│  외부 플러그인   │
-└─────────────────┘
+          ┌─────────────────┴─────────────────┐
+          │                                   │
+          ▼                                   ▼
+┌─────────────────┐                 ┌─────────────────┐
+│  plugin-sdk     │                 │   core 모듈     │
+│                 │                 │                 │
+│ PluginExecutor  │                 │ Repository Port │
+│ OAuthHandler    │                 │ StateStorage    │
+│ DTO             │                 │                 │
+└────────┬────────┘                 └────────┬────────┘
+         │                                   │
+         │                                   ▼
+         │                          ┌─────────────┐
+         │                          │ domain 모듈 │
+         │                          │             │
+         │                          │ Entity      │
+         │                          │ Enum        │
+         │                          └──────▲──────┘
+         │                                 │
+         │          ┌──────────────────────┘
+         │          │
+         ▼          │
+┌─────────────────┐ │ ┌───────────────────┐
+│  slack-plugin   │ │ │infrastructure 모듈│
+│  google-plugin  │ │ │                   │
+│  외부 플러그인  │ │ │ JpaRepository     │
+└─────────────────┘ │ │ StateStorage      │
+                    │ │ Crypto            │
+                    │ └────────┬──────────┘
+                    │          │
+                    └──────────┘
+                      core 구현
 ```
 
 ---
 
 ## 4. 모듈 의존성
 
-### 4.1 의존성 방향
+### 4.1 의존성 방향 (Clean Architecture)
 
 ```
                  plugin-sdk
                      ↑
         ┌────────────┼────────────┐
         │            │            │
-       api ──────▶ domain ◀──── infrastructure
-        │                         │
-        └─────── runtimeOnly ─────┘
+       api ──────▶ core ──────▶ domain
+        │            ▲
+        │            │ implements
+        ├──────▶ infrastructure ───▶ domain
         │
-        └─────── runtimeOnly ─────▶ slack-plugin
-                                         │
-                                         │ compileOnly
-                                         ▼
-                                    plugin-sdk
+        └─ runtimeOnly ────────▶ slack-plugin
+                                      │
+                                      │ compileOnly
+                                      ▼
+                                 plugin-sdk
 ```
+
+> **Note**: api → infrastructure는 `implementation` (JpaConfig의 EntityScan 적용 필요)
 
 ### 4.2 Gradle 설정
 
@@ -321,8 +364,14 @@ dependencies {
     compileOnly 'jakarta.persistence:jakarta.persistence-api'
 }
 
+// core/build.gradle
+dependencies {
+    api project(':dop-global-apps-domain')
+}
+
 // infrastructure/build.gradle
 dependencies {
+    implementation project(':dop-global-apps-core')
     implementation project(':dop-global-apps-domain')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -332,9 +381,10 @@ dependencies {
 
 // api/build.gradle
 dependencies {
+    implementation project(':dop-global-apps-core')
+    implementation project(':dop-global-apps-infrastructure')  // JpaConfig 포함
+
     implementation project(':plugins:plugin-sdk')
-    implementation project(':dop-global-apps-domain')
-    runtimeOnly project(':dop-global-apps-infrastructure')
     runtimeOnly project(':plugins:slack-plugin')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -405,23 +455,28 @@ dependencies {
                                   │
                                   ▼
 ┌───────────────────────────────────────────────────────────────────────┐
-│                            domain 모듈                                 │
+│                            core 모듈                                   │
 │  ┌──────────────────────────────────────────────────────────────────┐│
-│  │ OAuthCredentialRepository (interface)                             ││
+│  │ OAuthCredentialRepository (interface) - Repository Port           ││
 │  │   Optional<OAuthCredential> findByConnectionId(Long id);          ││
 │  └──────────────────────────────────────────────────────────────────┘│
+└───────────────────────────────────┬───────────────────────────────────┘
+                                    │ 의존
+┌───────────────────────────────────▼───────────────────────────────────┐
+│                            domain 모듈                                 │
 │  ┌──────────────────────────────────────────────────────────────────┐│
 │  │ OAuthCredential (Entity)                                          ││
 │  │   @Convert(converter = EncryptedStringConverter.class)            ││
 │  │   private String accessToken;                                     ││
 │  └──────────────────────────────────────────────────────────────────┘│
 └───────────────────────────────────▲───────────────────────────────────┘
-                                    │ 구현
+                                    │ 구현 (core Port)
 ┌───────────────────────────────────┴───────────────────────────────────┐
 │                        infrastructure 모듈                             │
 │  ┌──────────────────────────────────────────────────────────────────┐│
 │  │ JpaOAuthCredentialRepository                                      ││
-│  │   extends JpaRepository, OAuthCredentialRepository                ││
+│  │   extends JpaRepository                                           ││
+│  │   implements OAuthCredentialRepository (core Port)                ││
 │  └──────────────────────────────────────────────────────────────────┘│
 │  ┌──────────────────────────────────────────────────────────────────┐│
 │  │ EncryptedStringConverter                                          ││
@@ -433,14 +488,14 @@ dependencies {
 ### 6.2 OAuth 설치 플로우
 
 ```
-Client                api 모듈                     domain        infrastructure       Plugin
+Client                api 모듈                       core        infrastructure       Plugin
   │                      │                           │                │                │
   │ GET /oauth/slack/install                         │                │                │
   │─────────────────────▶│                           │                │                │
   │                      │                           │                │                │
   │                      │ pluginRepo.findByPluginId("slack")         │                │
-  │                      │──────────────────────────▶│                │                │
-  │                      │                           │◀───────────────│                │
+  │                      │──────────────────────────▶│ (Port)         │                │
+  │                      │                           │◀───────────────│ (구현체)       │
   │                      │◀──────────────────────────│                │                │
   │                      │                           │                │                │
   │                      │ authHandler.buildAuthUrl()│                │                │
@@ -460,6 +515,7 @@ Client                api 모듈                     domain        infrastructur
 | 기술 | 패키지 | 용도 |
 |------|--------|------|
 | JPA | `persistence/` | DB 접근 |
+| Flyway | `db/migration/` | DB 스키마 마이그레이션 |
 | Redis | `cache/` | 토큰 캐시, OAuth State 저장 |
 | Kafka | `messaging/` | 이벤트 발행/구독 |
 | Jasypt | `crypto/` | 민감 정보 암호화 |
@@ -468,7 +524,7 @@ Client                api 모듈                     domain        infrastructur
 ### 7.2 인터페이스-구현 분리 예시
 
 ```java
-// domain 모듈 - 인터페이스
+// core 모듈 - Repository Port 인터페이스
 public interface TokenCacheRepository {
     Optional<String> get(String key);
     void set(String key, String value, Duration ttl);
@@ -505,9 +561,9 @@ public class RedisTokenCacheRepository implements TokenCacheRepository {
 
 ### 8.1 DIP (의존성 역전)
 
-- domain에 인터페이스 정의
+- core에 Repository Port 인터페이스 정의
 - infrastructure에서 구현
-- api는 인터페이스에만 의존
+- api는 core 인터페이스에 의존 (infrastructure는 JpaConfig 로딩을 위해 implementation)
 
 ### 8.2 모듈 경계
 
@@ -523,10 +579,172 @@ public class RedisTokenCacheRepository implements TokenCacheRepository {
 
 ---
 
-## 9. 변경 이력
+## 9. DB 마이그레이션 (Flyway)
+
+### 9.1 개요
+
+- 마이그레이션 파일: `infrastructure/src/main/resources/db/migration/`
+- 실행 시점: 앱 시작 시 자동 실행 (local/dev), CI/CD에서 별도 실행 (prod)
+- 공유 스키마이므로 infrastructure 모듈에서 관리
+
+### 9.2 환경별 설정
+
+| 환경 | flyway.enabled | 마이그레이션 위치 | 설명 |
+|------|---------------|-----------------|------|
+| local | `true` | `classpath:db/migration/develop` | 앱 시작 시 자동 실행 |
+| dev | `true` | `classpath:db/migration/develop` | 앱 시작 시 자동 실행 |
+| prod | `false` | - | CI/CD에서 Gradle 태스크로 실행 |
+
+### 9.3 설정 예시
+
+```yaml
+# application-local.yml (또는 application-dev.yml)
+spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration/develop
+
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Flyway가 스키마 관리
+```
+
+```yaml
+# application-prod.yml
+spring:
+  flyway:
+    enabled: false  # CI/CD에서 별도 실행
+```
+
+### 9.4 운영 환경 마이그레이션 (Gradle 태스크)
+
+```bash
+# CI/CD에서 앱 배포 전 실행
+FLYWAY_URL=jdbc:postgresql://prod-db:5432/global_apps \
+FLYWAY_USER=admin \
+FLYWAY_PASSWORD=secret \
+FLYWAY_ENV=release \
+./gradlew :dop-global-apps-infrastructure:flywayMigrate
+```
+
+### 9.5 마이그레이션 파일 명명 규칙
+
+```
+V{버전}__{설명}.sql
+
+예시:
+V1__create_tables.sql
+V2__add_column_to_plugin.sql
+V3__create_index.sql
+```
+
+---
+
+## 10. 새로운 Entry Point 추가 가이드
+
+### 10.1 Entry Point란?
+
+Spring Boot Application의 진입점. 예시:
+- `api` - REST API 서버
+- `batch` - 배치 작업
+- `scheduler` - 스케줄러
+- `consumer` - 메시지 컨슈머
+
+### 10.2 왜 core와 infrastructure 둘 다 의존해야 하는가?
+
+```
+Entry Point → core (인터페이스 사용)
+              ↑
+      infrastructure (구현체) ← classpath에 있어야 Spring이 주입 가능
+```
+
+**핵심:**
+- core는 **인터페이스만** 정의 (Repository Port)
+- 실제 구현체는 infrastructure에 존재 (JpaRepository 등)
+- Gradle 의존성 선언 없으면 **classpath에 포함 안 됨**
+- Spring이 런타임에 빈을 주입하려면 구현체가 classpath에 있어야 함
+
+**왜 core가 infrastructure를 의존하면 안 되는가?**
+```
+core → infrastructure  ← DIP 위반!
+infrastructure → core  ← 올바른 방향 (구현이 인터페이스에 의존)
+```
+- 순환 의존성 발생
+- core가 특정 기술(JPA)에 종속
+- 기술 교체 시 core 수정 필요
+
+### 10.3 새로운 Entry Point 추가 방법
+
+**1. 모듈 생성**
+```bash
+mkdir -p dop-global-apps-batch/src/main/java/com/daou/dop/global/apps/batch
+```
+
+**2. build.gradle 설정**
+```groovy
+// dop-global-apps-batch/build.gradle
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    // 필수: core + infrastructure
+    implementation project(':dop-global-apps-core')
+    implementation project(':dop-global-apps-infrastructure')
+
+    // 플러그인 사용 시
+    implementation project(':plugins:plugin-sdk')
+    runtimeOnly project(':plugins:slack-plugin')
+
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+}
+```
+
+**3. Application 클래스**
+```java
+package com.daou.dop.global.apps.batch;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+
+@SpringBootApplication(scanBasePackages = "com.daou.dop")
+@EntityScan(basePackages = "com.daou.dop")
+public class DopGlobalAppsBatchApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DopGlobalAppsBatchApplication.class, args);
+    }
+}
+```
+
+**4. settings.gradle 등록**
+```groovy
+include 'dop-global-apps-batch'
+```
+
+### 10.4 체크리스트
+
+| 항목 | 설명 |
+|------|------|
+| `implementation core` | Repository Port 인터페이스 사용 |
+| `implementation infrastructure` | 런타임 구현체 주입 |
+| `@EntityScan` | `com.daou.dop` - Entity 스캔 |
+| `scanBasePackages` | `com.daou.dop` - 컴포넌트 스캔 |
+| `flyway.enabled` | local/dev: `true`, prod: `false` (9장 참조) |
+
+---
+
+## 11. 변경 이력
 
 | 날짜 | 버전 | 내용 |
 |------|------|------|
 | 2025-01-21 | 0.1 | 초안 작성 |
 | 2025-01-21 | 0.2 | 4 모듈 구조로 변경, infrastructure 상세화 |
 | 2025-01-21 | 0.3 | plugin-sdk 모듈 추가, core → plugin-sdk로 의존성 변경 |
+| 2026-01-21 | 0.4 | Clean Architecture 적용: core에 Repository Port 정의, api→core→domain 의존성 구조 |
+| 2026-01-21 | 0.5 | 새로운 Entry Point 추가 가이드 섹션 추가 |
+| 2026-01-21 | 0.6 | Flyway DB 마이그레이션 섹션 추가 (infrastructure 모듈에서 관리) |

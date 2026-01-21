@@ -1,5 +1,11 @@
 # 개발 서버 환경 (PostgreSQL)
 spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration/develop
+
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:global-apps}
     driver-class-name: org.postgresql.Driver

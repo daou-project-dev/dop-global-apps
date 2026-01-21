@@ -1,5 +1,8 @@
 # 운영 환경 (PostgreSQL)
 spring:
+  flyway:
+    enabled: false  # CI/CD에서 별도 실행
+
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:global-apps}
     driver-class-name: org.postgresql.Driver

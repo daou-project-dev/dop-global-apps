@@ -10,15 +10,14 @@ bootRun {
 }
 
 dependencies {
-    // 도메인 및 인프라 모듈
-    implementation project(':dop-global-apps-domain')
-    runtimeOnly project(':dop-global-apps-infrastructure')
+    // Core (Repository Port, domain 포함)
+    implementation project(':dop-global-apps-core')
+
+    // Infrastructure (Repository 구현체, JpaConfig 포함)
+    implementation project(':dop-global-apps-infrastructure')
 
     // 플러그인 SDK
     implementation project(':plugins:plugin-sdk')
-
-    // Legacy (V1 지원용, 추후 제거)
-    implementation project(':dop-global-apps-core')
 
     // Spring
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'

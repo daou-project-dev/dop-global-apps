@@ -3,7 +3,7 @@ package com.daou.dop.global.apps.plugin.sdk;
 import java.util.Map;
 
 /**
- * 플러그인 API 실행 요청 (V2)
+ * 플러그인 API 실행 요청
  *
  * @param pluginId   플러그인 식별자
  * @param action     실행할 액션 (chat.postMessage, send-email 등)

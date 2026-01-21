@@ -5,13 +5,7 @@ import org.pf4j.ExtensionPoint;
 import java.util.List;
 
 /**
- * 플러그인 API 실행을 위한 확장점 (V2)
- *
- * <p>V1과의 차이점:
- * <ul>
- *   <li>getSupportedActions() 메서드 추가</li>
- *   <li>ExecuteRequest에 CredentialContext 포함 (method/uri → action 기반)</li>
- * </ul>
+ * 플러그인 API 실행을 위한 확장점
  */
 public interface PluginExecutor extends ExtensionPoint {
 

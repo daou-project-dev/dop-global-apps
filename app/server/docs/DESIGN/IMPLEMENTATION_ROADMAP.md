@@ -268,13 +268,69 @@ server/
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Phase 3: 고급 기능
+### Phase 3: 의존성 구조 정리 (⬜ 예정)
+
+목표: core가 plugin-sdk를 포함하여 진입점 모듈의 의존성 단순화
+
+**문제점**:
+```
+현재 구조:
+api ──────┬──▶ core
+          └──▶ plugin-sdk  ← 직접 의존
+
+만약 batch 모듈 추가 시:
+api ──────┬──▶ core
+          └──▶ plugin-sdk  ← 중복!
+batch ────┬──▶ core
+          └──▶ plugin-sdk  ← 중복!
+```
+
+**목표 구조**:
+```
+api ──────┐
+batch ────┼──▶ core ──┬──▶ plugin-sdk (api dependency)
+xxx ──────┘           └──▶ domain
+```
+- 모든 진입점(api, batch 등)은 core만 의존
+- core가 plugin-sdk를 `api` dependency로 노출
+- 플러그인 관리/실행 로직은 core에 위치
+
+**이동 대상**:
+
+| 파일 | 현재 위치 | 이동 위치 | 이유 |
+|------|----------|----------|------|
+| `PluginRegistry.java` | api/plugin/ | core/plugin/ | 플러그인 확장점 관리는 공통 기능 |
+| `PluginExecutorService.java` (핵심 로직) | api/execute/ | core/execute/ | 플러그인 실행 로직 재사용 |
+
+**api에 남는 것**:
+- `ExecuteController.java` - HTTP 진입점
+- `PluginOAuthController.java` - OAuth HTTP 진입점
+- api 특화 서비스 로직
+
+**build.gradle 변경**:
+```groovy
+// core/build.gradle
+dependencies {
+    api project(':plugins:plugin-sdk')  // 추가
+    api project(':dop-global-apps-domain')
+}
+
+// api/build.gradle
+dependencies {
+    implementation project(':dop-global-apps-core')
+    // plugin-sdk 제거 (core에서 전이됨)
+    runtimeOnly project(':dop-global-apps-infrastructure')
+    runtimeOnly project(':plugins:slack-plugin')
+}
+```
+
+### Phase 4: 고급 기능
 
 목표: 운영 안정성 및 확장
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Phase 3: 고급 기능                                           │
+│ Phase 4: 고급 기능                                           │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  1. 토큰 자동 갱신 (Scheduler)                               │
@@ -377,17 +433,32 @@ server ──▶ plugin-sdk
 server ──▶ core (내부 유틸)
 ```
 
-### Phase 2 이후
+### Phase 2 이후 (현재)
 
 ```
 slack-plugin ──▶ plugin-sdk
 
-api ──▶ plugin-sdk
-api ──▶ domain
+api ──▶ core
+api ──▶ plugin-sdk  ← 문제: 직접 의존
 api ──runtimeOnly──▶ infrastructure
 api ──runtimeOnly──▶ slack-plugin
 
-infrastructure ──▶ domain
+core ──▶ domain
+infrastructure ──▶ core
+```
+
+### Phase 3 이후 (목표)
+
+```
+slack-plugin ──▶ plugin-sdk
+
+api ──▶ core (core가 plugin-sdk 포함)
+api ──runtimeOnly──▶ infrastructure
+api ──runtimeOnly──▶ slack-plugin
+
+core ──api──▶ plugin-sdk
+core ──api──▶ domain
+infrastructure ──▶ core
 ```
 
 ---
@@ -401,3 +472,4 @@ infrastructure ──▶ domain
 | 2025-01-21 | 0.3 | Phase 1 진행 - plugin_connection, oauth_credential, ConnectionService 구현 |
 | 2025-01-21 | 0.4 | Phase 1 완료 - company, user Entity, slack.properties 제거, V1 deprecated |
 | 2025-01-21 | 0.5 | Phase 2 완료 - domain/infrastructure 모듈 분리, apikey_credential 추가 |
+| 2026-01-21 | 0.6 | Phase 3 추가 - 의존성 구조 정리 (core가 plugin-sdk 포함, 플러그인 로직 core 이동) |
