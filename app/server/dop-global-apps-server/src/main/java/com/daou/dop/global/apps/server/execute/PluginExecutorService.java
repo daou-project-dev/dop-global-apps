@@ -3,8 +3,8 @@ package com.daou.dop.global.apps.server.execute;
 import com.daou.dop.global.apps.core.execute.PluginExecutor;
 import com.daou.dop.global.apps.core.execute.dto.ExecuteRequest;
 import com.daou.dop.global.apps.core.execute.dto.ExecuteResponse;
-import com.daou.dop.global.apps.core.slack.SlackTokenProvider;
-import com.daou.dop.global.apps.core.slack.dto.SlackInstallation;
+import com.daou.dop.global.apps.core.oauth.TokenInfo;
+import com.daou.dop.global.apps.core.oauth.TokenStorage;
 import jakarta.annotation.PostConstruct;
 import org.pf4j.PluginManager;
 import org.slf4j.Logger;
@@ -22,12 +22,12 @@ public class PluginExecutorService {
     private static final Logger log = LoggerFactory.getLogger(PluginExecutorService.class);
 
     private final PluginManager pluginManager;
-    private final SlackTokenProvider tokenProvider;
+    private final TokenStorage tokenStorage;
     private final Map<String, PluginExecutor> executorMap = new ConcurrentHashMap<>();
 
-    public PluginExecutorService(PluginManager pluginManager, SlackTokenProvider tokenProvider) {
+    public PluginExecutorService(PluginManager pluginManager, TokenStorage tokenStorage) {
         this.pluginManager = pluginManager;
-        this.tokenProvider = tokenProvider;
+        this.tokenStorage = tokenStorage;
     }
 
     @PostConstruct
@@ -76,16 +76,18 @@ public class PluginExecutorService {
             return request;
         }
 
-        Optional<SlackInstallation> installation = tokenProvider.findByTeamId(request.teamId());
+        // pluginName을 pluginId로 사용하여 토큰 조회
+        String pluginId = request.plugin();
+        Optional<TokenInfo> tokenInfo = tokenStorage.findByExternalId(pluginId, request.teamId());
 
-        return installation
-                .map(inst -> ExecuteRequest.builder()
+        return tokenInfo
+                .map(info -> ExecuteRequest.builder()
                         .plugin(request.plugin())
                         .method(request.method())
                         .uri(request.uri())
                         .body(request.body())
                         .teamId(request.teamId())
-                        .accessToken(inst.accessToken())
+                        .accessToken(info.accessToken())
                         .build())
                 .orElse(request);
     }

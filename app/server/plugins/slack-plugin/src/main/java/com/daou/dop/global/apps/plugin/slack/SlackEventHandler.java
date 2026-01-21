@@ -1,20 +1,29 @@
 package com.daou.dop.global.apps.plugin.slack;
 
-import com.daou.dop.global.apps.core.slack.SlackBoltExtension;
 import com.daou.dop.global.apps.plugin.slack.handler.CommandHandler;
 import com.daou.dop.global.apps.plugin.slack.handler.EventHandler;
 import com.daou.dop.global.apps.plugin.slack.handler.InteractionHandler;
 import com.slack.api.bolt.App;
 import org.pf4j.Extension;
+import org.pf4j.ExtensionPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Slack Bolt 핸들러 등록 구현체
+ * Slack 이벤트 핸들러
+ * Slack Bolt App에 이벤트/커맨드/인터랙션 핸들러 등록
  */
 @Extension
-public class SlackBoltExtensionImpl implements SlackBoltExtension {
+public class SlackEventHandler implements ExtensionPoint {
 
-    @Override
+    private static final Logger log = LoggerFactory.getLogger(SlackEventHandler.class);
+
+    /**
+     * Slack Bolt App에 핸들러 등록
+     */
     public void configureHandlers(App app) {
+        log.info("Configuring Slack event handlers");
+
         // 이벤트 핸들러 등록
         EventHandler.register(app);
 
@@ -23,9 +32,13 @@ public class SlackBoltExtensionImpl implements SlackBoltExtension {
 
         // 인터랙션 핸들러 등록
         InteractionHandler.register(app);
+
+        log.info("Slack event handlers configured");
     }
 
-    @Override
+    /**
+     * 핸들러 우선순위
+     */
     public int getOrder() {
         return 10;
     }
