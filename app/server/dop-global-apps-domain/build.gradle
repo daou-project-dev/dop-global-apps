@@ -1,6 +1,6 @@
 // Domain 모듈: Entity, Enum, Repository 인터페이스
 
 dependencies {
-    // JPA 어노테이션만 사용 (구현체 없음)
-    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.2.0'
+    // JPA 어노테이션만 사용 (구현체 없음) - Spring Boot BOM에서 버전 관리
+    compileOnly 'jakarta.persistence:jakarta.persistence-api'
 }

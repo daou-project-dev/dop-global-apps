@@ -1,33 +1,19 @@
 // Infrastructure 모듈: JPA 구현체, Crypto, Config, Flyway 마이그레이션
 
-plugins {
-    alias(libs.plugins.flyway)
-}
-
 dependencies {
     implementation project(':dop-global-apps-core')
     implementation project(':dop-global-apps-domain')
 
-    // JPA
+    // JPA - Spring Boot BOM에서 버전 관리
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // Flyway (DB 마이그레이션)
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.flywaydb:flyway-database-postgresql'
+    // Flyway (DB 마이그레이션) - Spring Boot 4는 starter 필수
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    runtimeOnly(libs.flyway.postgresql)
 
     // Jasypt (암호화)
-    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+    implementation(libs.jasypt.spring.boot.starter)
 
-    // Flyway Gradle 플러그인용 JDBC 드라이버
-    flywayMigration 'org.postgresql:postgresql:42.7.4'
-}
-
-// Flyway 설정 (환경변수 또는 기본값 사용)
-flyway {
-    url = System.getenv('FLYWAY_URL') ?: 'jdbc:postgresql://localhost:5432/global_apps'
-    user = System.getenv('FLYWAY_USER') ?: 'postgres'
-    password = System.getenv('FLYWAY_PASSWORD') ?: 'postgres'
-    locations = ["classpath:db/migration/${System.getenv('FLYWAY_ENV') ?: 'develop'}"]
-    baselineOnMigrate = true
-    baselineVersion = '0'
+    // PostgreSQL JDBC 드라이버
+    runtimeOnly(libs.postgresql)
 }
