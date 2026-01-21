@@ -5,8 +5,6 @@ spring:
 
   profiles:
     active: local
-    group:
-      local: secret   # local 프로필 시 secret도 함께 로드
 
   threads:
     virtual:

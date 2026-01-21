@@ -3,6 +3,7 @@ package com.daou.dop.global.apps.plugin.slack;
 import com.daou.dop.global.apps.plugin.sdk.OAuthException;
 import com.daou.dop.global.apps.plugin.sdk.OAuthHandler;
 import com.daou.dop.global.apps.plugin.sdk.PluginConfig;
+import com.daou.dop.global.apps.plugin.sdk.PluginMetadata;
 import com.daou.dop.global.apps.plugin.sdk.TokenInfo;
 import com.slack.api.Slack;
 import com.slack.api.methods.response.oauth.OAuthV2AccessResponse;
@@ -41,6 +42,22 @@ public class SlackOAuthHandlerV2 implements OAuthHandler {
     @Override
     public String getPluginId() {
         return PLUGIN_ID;
+    }
+
+    @Override
+    public PluginMetadata getMetadata() {
+        return PluginMetadata.builder()
+                .pluginId(PLUGIN_ID)
+                .name("Slack")
+                .description("Slack 워크스페이스 연동")
+                .authType("OAUTH2")
+                .iconUrl("https://a.slack-edge.com/80588/marketing/img/icons/icon_slack_hash_colored.png")
+                .authUrl(OAUTH_AUTHORIZE_URL)
+                .tokenUrl("https://slack.com/api/oauth.v2.access")
+                .apiBaseUrl("https://slack.com/api")
+                .defaultScopes("channels:history,channels:read,chat:write,chat:write.public,commands,app_mentions:read,im:history,im:read,im:write")
+                // 민감 정보(clientId, clientSecret, secrets)는 DB에서 직접 관리
+                .build();
     }
 
     @Override

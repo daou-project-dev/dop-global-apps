@@ -22,6 +22,14 @@ public interface OAuthHandler extends ExtensionPoint {
     String getPluginId();
 
     /**
+     * 플러그인 메타데이터
+     * 서버가 플러그인 로드 시 DB에 자동 등록하는 데 사용
+     *
+     * @return 플러그인 메타데이터
+     */
+    PluginMetadata getMetadata();
+
+    /**
      * OAuth 인증 URL 생성
      *
      * @param config      플러그인 설정 (서버가 DB에서 조회하여 전달)
