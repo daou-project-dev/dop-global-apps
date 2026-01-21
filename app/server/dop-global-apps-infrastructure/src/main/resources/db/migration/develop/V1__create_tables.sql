@@ -58,6 +58,7 @@ CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     company_id BIGINT NOT NULL REFERENCES company(id),
     platform_user_id VARCHAR(100) NOT NULL,
+    login_id VARCHAR(100),
     email VARCHAR(200),
     name VARCHAR(100),
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
@@ -72,6 +73,7 @@ CREATE INDEX idx_users_status ON users(status);
 
 COMMENT ON TABLE users IS '사용자 테이블';
 COMMENT ON COLUMN users.platform_user_id IS '다우오피스 사용자 ID';
+COMMENT ON COLUMN users.login_id IS '로그인 ID';
 COMMENT ON COLUMN users.status IS '상태 (ACTIVE, INACTIVE)';
 
 -- ===================================================================
