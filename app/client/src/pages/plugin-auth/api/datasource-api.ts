@@ -8,14 +8,14 @@ export interface CreateDatasourceResponse {
 
 export const datasourceApi = {
   create: (datasource: Datasource) =>
-    apiClient.post<CreateDatasourceResponse>('/api/datasources', datasource),
+    apiClient.post<CreateDatasourceResponse>('/datasources', datasource),
 
-  getAll: () => apiClient.get<Datasource[]>('/api/datasources'),
+  getAll: () => apiClient.get<Datasource[]>('/datasources'),
 
-  getById: (id: string) => apiClient.get<Datasource>(`/api/datasources/${id}`),
+  getById: (id: string) => apiClient.get<Datasource>(`/datasources/${id}`),
 
   update: (id: string, datasource: Partial<Datasource>) =>
-    apiClient.put<Datasource>(`/api/datasources/${id}`, datasource),
+    apiClient.put<Datasource>(`/datasources/${id}`, datasource),
 
-  delete: (id: string) => apiClient.delete<void>(`/api/datasources/${id}`),
+  delete: (id: string) => apiClient.delete<void>(`/datasources/${id}`),
 };
