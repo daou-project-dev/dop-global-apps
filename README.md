@@ -7,58 +7,50 @@
 ```
 dop-global-apps/
 ├── app/
-│   └── server/                      # 백엔드 (Spring Boot + PF4J)
-│       ├── dop-global-apps-core/    # 공통 유틸리티 및 핵심 로직
-│       ├── dop-global-apps-server/  # Entry Point (Boot 애플리케이션)
-│       └── plugins/                 # 플러그인 모듈
-│           └── slack-plugin/
-├── docs/                            # 공통 문서
-├── .claude/                         # Claude Code 설정 및 문서
-├── LICENSE
-└── README.md
+│   └── server/                 # 백엔드 서버
+└── docs/                       # 공통 문서
 ```
 
-## 서버 실행
+## 아키텍처
 
-### Local 환경 (H2)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      API Layer (api)                        │
+├─────────────────────────────────────────────────────────────┤
+│                    Domain Layer (domain)                    │
+├─────────────────────────────────────────────────────────────┤
+│              Infrastructure Layer (infrastructure)          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    Plugin System (PF4J)                     │
+│              plugin-sdk  ←──  slack-plugin                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 기술 스택
+
+| 분류 | 기술 |
+|------|------|
+| Language | Java 25 + Virtual Threads |
+| Framework | Spring Boot 4.0.1 |
+| Plugin | PF4J 3.14.1 |
+| Database | PostgreSQL / H2 |
+
+## 시작하기
+
 ```bash
 cd app/server
 ./gradlew bootRun
 ```
 
-### Dev 환경 (PostgreSQL)
-```bash
-cd app/server
-export DB_HOST=localhost
-export DB_USERNAME=global-apps
-export DB_PASSWORD=dev123
-./gradlew bootRun --args='--spring.profiles.active=dev'
-```
-
-## 기술 스택
-
-### Backend (app/server)
-- Java 25
-- Spring Boot 4.0.1
-- Virtual Threads (Project Loom)
-- PF4J 3.14.1 (플러그인 시스템)
-- PostgreSQL / H2
-- Hibernate 7.2.0
-
-### 주요 기능
-- OAuth 2.0 인증 (Slack, Gmail, M365 등)
-- API Key 인증
-- 게이트웨이 프록시
-- 플러그인 기반 확장
+상세 실행 방법: [app/server/README.md](app/server/README.md)
 
 ## 문서
 
-상세 문서는 `.claude/docs/` 디렉토리 참조:
-- [구현 가이드](/.claude/docs/GLOBAL_APPS_IMPLEMENTATION.md)
-- [실행 계획](/.claude/docs/IMPLEMENTATION_PLAN.md)
-- [PF4J 아키텍처](/.claude/docs/PF4J_ARCHITECTURE.md)
-- [프로젝트 구조](/.claude/docs/PROJECT_STRUCTURE.md)
+- [서버 가이드](app/server/README.md)
+- [설계 문서](app/server/docs/DESIGN/)
 
 ## 라이선스
 
-Apache License 2.0 - [LICENSE](LICENSE) 참조
+Apache License 2.0 - [LICENSE](LICENSE)
