@@ -1,7 +1,7 @@
 package com.daou.dop.global.apps.api.connection.controller;
 
 import com.daou.dop.global.apps.api.connection.dto.ConnectionResponse;
-import com.daou.dop.global.apps.api.connection.service.ConnectionService;
+import com.daou.dop.global.apps.core.connection.ConnectionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +31,10 @@ public class ConnectionController {
     @GetMapping
     public ResponseEntity<List<ConnectionResponse>> getConnections() {
         // TODO: 인증 구현 후 companyId, userId를 요청에서 추출
-        List<ConnectionResponse> connections = connectionService.getActiveConnections(null, null);
+        List<ConnectionResponse> connections = connectionService.getActiveConnections(null, null)
+                .stream()
+                .map(ConnectionResponse::from)
+                .toList();
         return ResponseEntity.ok(connections);
     }
 }

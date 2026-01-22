@@ -1,6 +1,7 @@
 package com.daou.dop.global.apps.core.plugin;
 
 import com.daou.dop.global.apps.core.dto.PluginConfigInfo;
+import com.daou.dop.global.apps.core.dto.PluginInfo;
 import com.daou.dop.global.apps.core.repository.PluginRepository;
 import com.daou.dop.global.apps.domain.enums.PluginStatus;
 import com.daou.dop.global.apps.domain.plugin.Plugin;
@@ -53,6 +54,16 @@ public class PluginService {
     }
 
     /**
+     * 활성 플러그인 목록 조회 (표시용)
+     */
+    public List<PluginInfo> findAllActivePlugins() {
+        return pluginRepository.findByStatus(PluginStatus.ACTIVE)
+                .stream()
+                .map(this::toPluginInfo)
+                .toList();
+    }
+
+    /**
      * 플러그인 존재 여부 확인
      */
     public boolean existsByPluginId(String pluginId) {
@@ -61,13 +72,24 @@ public class PluginService {
 
     // ========== 내부 메서드 ==========
 
+    private PluginInfo toPluginInfo(Plugin plugin) {
+        return PluginInfo.builder()
+                .pluginId(plugin.getPluginId())
+                .name(plugin.getName())
+                .description(plugin.getDescription())
+                .iconUrl(plugin.getIconUrl())
+                .authType(plugin.getAuthType() != null ? plugin.getAuthType().name() : null)
+                .active(plugin.getStatus() == PluginStatus.ACTIVE)
+                .build();
+    }
+
     private PluginConfigInfo toPluginConfigInfo(Plugin plugin) {
         Map<String, String> secrets = parseSecrets(plugin.getSecrets());
         Map<String, Object> metadata = parseMetadata(plugin.getMetadata());
 
         return PluginConfigInfo.builder()
                 .pluginId(plugin.getPluginId())
-                .displayName(plugin.getDisplayName())
+                .displayName(plugin.getName())
                 .clientId(plugin.getClientId())
                 .clientSecret(plugin.getClientSecret())
                 .secrets(secrets)

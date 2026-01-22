@@ -1,10 +1,7 @@
 package com.daou.dop.global.apps.api.connection.dto;
 
-import com.daou.dop.global.apps.domain.connection.PluginConnection;
-import com.daou.dop.global.apps.domain.enums.ConnectionStatus;
-import com.daou.dop.global.apps.domain.enums.ScopeType;
-
-import java.time.Instant;
+import com.daou.dop.global.apps.core.dto.ConnectionInfo;
+import com.daou.dop.global.apps.core.enums.ScopeType;
 
 /**
  * Connection 목록 조회 응답 DTO
@@ -14,8 +11,7 @@ import java.time.Instant;
  * @param externalId   외부 시스템 ID (Slack Team ID 등)
  * @param externalName 표시용 이름 (Slack Workspace Name 등)
  * @param scopeType    연동 범위 타입
- * @param status       연동 상태
- * @param createdAt    생성일시
+ * @param active       활성 상태
  */
 public record ConnectionResponse(
         Long id,
@@ -23,21 +19,19 @@ public record ConnectionResponse(
         String externalId,
         String externalName,
         ScopeType scopeType,
-        ConnectionStatus status,
-        Instant createdAt
+        boolean active
 ) {
     /**
-     * Entity → DTO 변환
+     * Core DTO → API DTO 변환
      */
-    public static ConnectionResponse from(PluginConnection connection) {
+    public static ConnectionResponse from(ConnectionInfo info) {
         return new ConnectionResponse(
-                connection.getId(),
-                connection.getPluginId(),
-                connection.getExternalId(),
-                connection.getExternalName(),
-                connection.getScopeType(),
-                connection.getStatus(),
-                connection.getCreatedAt()
+                info.id(),
+                info.pluginId(),
+                info.externalId(),
+                info.externalName(),
+                info.scopeType(),
+                info.active()
         );
     }
 }

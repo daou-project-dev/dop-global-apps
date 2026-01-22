@@ -1,7 +1,7 @@
 package com.daou.dop.global.apps.api.plugin.controller;
 
 import com.daou.dop.global.apps.api.plugin.dto.PluginResponse;
-import com.daou.dop.global.apps.api.plugin.service.PluginService;
+import com.daou.dop.global.apps.core.plugin.PluginService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +30,10 @@ public class PluginController {
      */
     @GetMapping
     public ResponseEntity<List<PluginResponse>> getPlugins() {
-        List<PluginResponse> plugins = pluginService.getActivePlugins();
+        List<PluginResponse> plugins = pluginService.findAllActivePlugins()
+                .stream()
+                .map(PluginResponse::from)
+                .toList();
         return ResponseEntity.ok(plugins);
     }
 }
