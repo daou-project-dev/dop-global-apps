@@ -94,6 +94,7 @@ public class PluginExecutorService {
 
         String externalId = request.getStringParam("externalId");
         if (externalId == null || externalId.isBlank()) {
+            log.warn("Skipping credential enrichment: missing or blank externalId for pluginId='{}', action='{}'", request.pluginId(), request.action());
             return request;
         }
 
