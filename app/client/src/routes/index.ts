@@ -7,6 +7,7 @@ import {
 import { Layout } from '../components/layout';
 import { PluginAuthPage } from '../pages/plugin-auth';
 import { DatasourcesPage } from '../pages/datasources';
+import { MicrosoftTestPage } from '../pages/microsoft-test';
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -24,7 +25,13 @@ const datasourcesRoute = createRoute({
   component: DatasourcesPage,
 });
 
-const routeTree = rootRoute.addChildren([pluginAuthRoute, datasourcesRoute]);
+const microsoftTestRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/microsoft-test',
+  component: MicrosoftTestPage,
+});
+
+const routeTree = rootRoute.addChildren([pluginAuthRoute, datasourcesRoute, microsoftTestRoute]);
 
 export const router = createRouter({ routeTree });
 
