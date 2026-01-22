@@ -3,8 +3,9 @@ import _ from 'lodash';
 
 import { currentDatasourceAtom, updateFormValueAtom } from '../../../store';
 
-import type { RadioButtonControlProps } from './types';
 import styles from './radio-button-control.module.css';
+
+import type { RadioButtonControlProps } from './types';
 
 export function RadioButtonControl(props: RadioButtonControlProps) {
   const { configProperty, label, options, hidden, initialValue } = props;

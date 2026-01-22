@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { slackApi } from '../../api';
+
 import styles from './slack-test.module.css';
 
 export function SlackTest() {
@@ -65,11 +66,7 @@ export function SlackTest() {
       </div>
 
       <div className={styles.actions}>
-        <button
-          className={styles.button}
-          onClick={handleGetChannels}
-          disabled={isLoading}
-        >
+        <button className={styles.button} onClick={handleGetChannels} disabled={isLoading}>
           채널 목록 조회
         </button>
       </div>
@@ -99,18 +96,12 @@ export function SlackTest() {
       </div>
 
       <div className={styles.actions}>
-        <button
-          className={styles.button}
-          onClick={handleSendMessage}
-          disabled={isLoading}
-        >
+        <button className={styles.button} onClick={handleSendMessage} disabled={isLoading}>
           메시지 전송
         </button>
       </div>
 
-      {result && (
-        <pre className={styles.result}>{result}</pre>
-      )}
+      {result && <pre className={styles.result}>{result}</pre>}
     </div>
   );
 }

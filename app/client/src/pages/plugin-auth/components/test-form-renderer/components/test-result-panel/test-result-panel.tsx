@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 
-import type { TestResult } from '../../types';
-
 import styles from './test-result-panel.module.css';
+
+import type { TestResult } from '../../types';
 
 interface TestResultPanelProps {
   result: TestResult;
@@ -24,9 +24,7 @@ export function TestResultPanel({ result }: TestResultPanelProps) {
         </span>
         <span className={styles.timestamp}>{timestamp}</span>
       </div>
-      <pre className={styles.content}>
-        {error ? `Error: ${error}` : data}
-      </pre>
+      <pre className={styles.content}>{error ? `Error: ${error}` : data}</pre>
     </div>
   );
 }

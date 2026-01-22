@@ -3,8 +3,9 @@ import _ from 'lodash';
 
 import { currentDatasourceAtom, updateFormValueAtom } from '../../../store';
 
-import type { DropDownControlProps } from './types';
 import styles from './drop-down-control.module.css';
+
+import type { DropDownControlProps } from './types';
 
 export function DropDownControl(props: DropDownControlProps) {
   const { configProperty, label, options, hidden } = props;
