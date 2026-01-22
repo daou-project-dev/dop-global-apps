@@ -24,7 +24,7 @@ allprojects {
     // Spring Boot BOM 적용 (버전 관리)
     dependencyManagement {
         imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:3.5.0"
+            mavenBom libs.spring.boot.bom.get().toString()
         }
     }
 
@@ -35,8 +35,8 @@ allprojects {
     }
 
     dependencies {
-        compileOnly 'org.projectlombok:lombok:1.18.42'
-        annotationProcessor 'org.projectlombok:lombok:1.18.42'
+        compileOnly libs.lombok
+        annotationProcessor libs.lombok
     }
 
     test {
