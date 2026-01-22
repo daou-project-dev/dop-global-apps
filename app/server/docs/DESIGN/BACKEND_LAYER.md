@@ -71,7 +71,7 @@ dependencies {
 
 > 상세 내용: [PLUGIN.md](PLUGIN.md) 참조
 
-### 2.2 core (핵심 인터페이스)
+### 2.2 core (핵심 비즈니스 로직)
 
 ```
 com.daou.dop.global.apps.core/
@@ -80,21 +80,57 @@ com.daou.dop.global.apps.core/
 │   ├── PluginConnectionRepository.java
 │   └── OAuthCredentialRepository.java
 │
-└── oauth/
-    └── StateStorage.java            # OAuth State 저장소 인터페이스
+├── dto/                             # api에서 사용하는 DTO
+│   ├── ExecuteCommand.java          # API 실행 요청
+│   ├── ExecuteResult.java           # API 실행 응답
+│   ├── CredentialInfo.java          # 인증 정보
+│   ├── OAuthTokenInfo.java          # OAuth 토큰 정보
+│   ├── PluginConfigInfo.java        # 플러그인 설정
+│   └── ConnectionInfo.java          # 연동 정보
+│
+├── enums/
+│   └── ScopeType.java               # 연동 범위 (WORKSPACE, USER)
+│
+├── oauth/
+│   ├── StateStorage.java            # OAuth State 저장소 인터페이스
+│   ├── PluginOAuthService.java      # OAuth 서비스 인터페이스
+│   └── OAuthException.java          # OAuth 예외
+│
+├── credential/
+│   └── CredentialProvider.java      # 인증 정보 조회 인터페이스
+│
+├── plugin/
+│   ├── PluginRegistry.java          # 플러그인 확장점 관리
+│   └── PluginService.java           # 플러그인 조회
+│
+├── connection/
+│   └── ConnectionService.java       # 연동 관리 (CredentialProvider 구현)
+│
+└── execute/
+    └── PluginExecutorService.java   # 플러그인 실행
 ```
 
 **원칙**:
 - Repository Port 인터페이스 (DIP)
-- api와 infrastructure 사이의 추상화 계층
-- Spring 의존성 최소화
+- 비즈니스 로직 서비스
+- api에서 사용할 DTO 정의 (plugin-sdk, domain 타입 숨김)
+- plugin-sdk 타입 → core DTO 변환 담당
 
 **의존성**:
 ```groovy
 dependencies {
-    api project(':dop-global-apps-domain')
+    implementation project(':dop-global-apps-domain')  // 전이 불가
+    implementation project(':plugins:plugin-sdk')      // 전이 불가
+
+    api(libs.pf4j)
+    compileOnly 'jakarta.persistence:jakarta.persistence-api'
+    compileOnly 'org.springframework:spring-context'
+    compileOnly 'org.springframework:spring-tx'
+    compileOnly 'tools.jackson.core:jackson-databind'
 }
 ```
+
+> **Note**: `implementation`으로 선언하여 api 모듈에서 domain/plugin-sdk 타입에 직접 접근 불가
 
 ### 2.3 domain (도메인 모델)
 
@@ -202,7 +238,7 @@ dependencies {
 }
 ```
 
-### 2.5 api (애플리케이션)
+### 2.5 api (HTTP 진입점)
 
 ```
 com.daou.dop.global.apps.api/
@@ -211,37 +247,35 @@ com.daou.dop.global.apps.api/
 │       └── PluginOAuthController.java  # OAuth 설치/콜백
 │
 ├── plugin/
-│   ├── service/
-│   │   └── PluginService.java          # 플러그인 조회
-│   └── PluginRegistry.java             # 플러그인 확장점 관리
-│
-├── connection/
+│   ├── controller/
+│   │   └── PluginController.java       # 플러그인 API
 │   └── service/
-│       └── ConnectionService.java      # 연동 생성/조회/삭제
+│       └── PluginResourceService.java  # 플러그인 리소스 조회
 │
 ├── execute/
-│   ├── ExecuteController.java          # API 실행 엔드포인트
-│   └── PluginExecutorService.java      # 플러그인 실행
+│   └── ExecuteController.java          # API 실행 엔드포인트
+│
+├── config/
+│   └── ...                             # 설정 클래스
 │
 └── DopGlobalAppsApiApplication.java    # Entry Point
 ```
 
 **원칙**:
-- Controller + Service
-- core의 Repository Port 인터페이스 의존 (infrastructure 직접 의존 X)
-- Spring Boot Entry Point
+- HTTP Controller만 포함 (진입점 역할)
+- 비즈니스 로직은 core 서비스에 위임
+- **core DTO만 사용** (domain Entity, plugin-sdk 타입 직접 사용 불가)
 
 **의존성**:
 ```groovy
 dependencies {
-    // Core (Repository Port, domain 포함)
+    // Core (DTO, Service, Repository Port)
     implementation project(':dop-global-apps-core')
 
-    // Infrastructure (Repository 구현체, JpaConfig 포함)
+    // Infrastructure (Repository 구현체, JpaConfig - 런타임 주입용)
     implementation project(':dop-global-apps-infrastructure')
 
-    // 플러그인
-    implementation project(':plugins:plugin-sdk')
+    // 플러그인 (런타임 로딩)
     runtimeOnly project(':plugins:slack-plugin')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -249,7 +283,7 @@ dependencies {
 }
 ```
 
-> **Note**: `@EntityScan(basePackages = "com.daou.dop")`은 Application 클래스에서 설정
+> **중요**: api 모듈은 domain, plugin-sdk를 직접 의존하지 않음. core가 `implementation`으로 의존하므로 타입 전이 불가.
 
 ### 2.6 plugins/slack-plugin (플러그인 구현체)
 
@@ -274,77 +308,106 @@ dependencies {
 ## 3. 레이어 다이어그램
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│                         api 모듈                           │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │ Controller                                          │   │
-│  │  OAuthCtrl, ExecuteCtrl                             │   │
-│  └────────────────────────┬────────────────────────────┘   │
-│                           │                                │
-│  ┌────────────────────────▼────────────────────────────┐   │
-│  │ Service                                             │   │
-│  │  PluginSvc, ConnectionSvc, PluginExecutorSvc        │   │
-│  └────────────────────────┬────────────────────────────┘   │
-└───────────────────────────┼────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                           api 모듈                              │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ Controller (HTTP 진입점)                                  │   │
+│  │  OAuthCtrl, ExecuteCtrl, PluginCtrl                       │   │
+│  └────────────────────────┬─────────────────────────────────┘   │
+│                           │ core DTO만 사용                      │
+│                           │ (domain, plugin-sdk 타입 접근 불가)  │
+└───────────────────────────┼─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                          core 모듈                              │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ DTO: ExecuteCommand, ExecuteResult, CredentialInfo, ...  │   │
+│  │ Enum: ScopeType                                          │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ Service: PluginSvc, ConnectionSvc, PluginExecutorSvc     │   │
+│  │ Interface: PluginOAuthService, CredentialProvider        │   │
+│  └────────────────┬─────────────────────┬───────────────────┘   │
+│                   │                     │                       │
+│                   ▼                     ▼                       │
+│         ┌─────────────────┐   ┌─────────────────┐               │
+│         │ domain 타입     │   │ plugin-sdk 타입 │               │
+│         │ (implementation)│   │ (implementation)│               │
+│         │ 내부 변환       │   │ 내부 변환       │               │
+│         └────────┬────────┘   └────────┬────────┘               │
+│  ┌───────────────┴─────────────────────┴────────────────────┐   │
+│  │ Repository Port 인터페이스                                │   │
+│  │  PluginRepo, ConnectionRepo, CredentialRepo              │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
                             │
           ┌─────────────────┴─────────────────┐
-          │                                   │
+          │ implements                        │
           ▼                                   ▼
-┌─────────────────┐                 ┌─────────────────┐
-│  plugin-sdk     │                 │   core 모듈     │
-│                 │                 │                 │
-│ PluginExecutor  │                 │ Repository Port │
-│ OAuthHandler    │                 │ StateStorage    │
-│ DTO             │                 │                 │
-└────────┬────────┘                 └────────┬────────┘
-         │                                   │
-         │                                   ▼
-         │                          ┌─────────────┐
-         │                          │ domain 모듈 │
-         │                          │             │
-         │                          │ Entity      │
-         │                          │ Enum        │
-         │                          └──────▲──────┘
-         │                                 │
-         │          ┌──────────────────────┘
-         │          │
-         ▼          │
-┌─────────────────┐ │ ┌───────────────────┐
-│  slack-plugin   │ │ │infrastructure 모듈│
-│  google-plugin  │ │ │                   │
-│  외부 플러그인  │ │ │ JpaRepository     │
-└─────────────────┘ │ │ StateStorage      │
-                    │ │ Crypto            │
-                    │ └────────┬──────────┘
-                    │          │
-                    └──────────┘
-                      core 구현
+┌─────────────────┐                 ┌───────────────────┐
+│  plugin-sdk     │                 │infrastructure 모듈│
+│                 │                 │                   │
+│ PluginExecutor  │                 │ JpaRepository     │
+│ OAuthHandler    │                 │ StateStorage      │
+│ SDK DTO         │                 │ Crypto            │
+└────────┬────────┘                 └───────────────────┘
+         │
+         │ compileOnly
+         ▼
+┌─────────────────┐
+│  slack-plugin   │
+│  google-plugin  │
+│  외부 플러그인  │
+└─────────────────┘
 ```
 
 ---
 
 ## 4. 모듈 의존성
 
-### 4.1 의존성 방향 (Clean Architecture)
+### 4.1 의존성 방향 (Clean Architecture + 타입 격리)
 
 ```
-                 plugin-sdk
-                     ↑
-        ┌────────────┼────────────┐
-        │            │            │
-       api ──────▶ core ──────▶ domain
-        │            ▲
-        │            │ implements
-        ├──────▶ infrastructure ───▶ domain
-        │
-        └─ runtimeOnly ────────▶ slack-plugin
-                                      │
-                                      │ compileOnly
-                                      ▼
-                                 plugin-sdk
+       ┌─────────────────────────────────────────────────────────┐
+       │                          api                            │
+       └───────────────┬─────────────────────┬───────────────────┘
+                       │                     │
+                       │ impl                │ runtimeOnly (classpath용)
+                       ▼                     ▼
+       ┌───────────────────────┐      ┌─────────────────────────────┐
+       │         core          │◀─────│      infrastructure         │
+       │   (Repository Port)   │ impl │   (Repository 구현체)       │
+       └───────┬───────┬───────┘      └───────────┬─────────────────┘
+               │       │                          │
+               │       │ impl (전이 불가)         │ impl
+               │       ▼                          │
+               │  ┌─────────────┐                 │
+               │  │ plugin-sdk  │                 │
+               │  └─────────────┘                 │
+               │                                  │
+               │ impl (전이 불가)                 │
+               ▼                                  ▼
+       ┌───────────────────────────────────────────────────────┐
+       │                        domain                         │
+       └───────────────────────────────────────────────────────┘
+
+       infrastructure ─── impl ───▶ core (인터페이스 구현)
+       slack-plugin ─── compileOnly ───▶ plugin-sdk
+       api ─── runtimeOnly ───▶ slack-plugin
 ```
 
-> **Note**: api → infrastructure는 `implementation` (JpaConfig의 EntityScan 적용 필요)
+**핵심 원칙**:
+- core가 domain, plugin-sdk를 `implementation`으로 의존 → api에서 타입 전이 불가
+- api는 **core DTO만 사용** (Entity, plugin-sdk 타입 직접 접근 불가)
+- api → infrastructure는 `runtimeOnly` (타입 의존 없음, classpath 포함만)
+- 모든 타입 변환은 core에서 수행
+
+**장점**:
+- api 레이어가 도메인 엔티티에 직접 의존하지 않음
+- api 레이어가 infrastructure 타입에도 의존하지 않음
+- 플러그인 SDK 변경이 api에 영향 없음
+- 계층 간 명확한 경계
 
 ### 4.2 Gradle 설정
 
@@ -364,9 +427,18 @@ dependencies {
     compileOnly 'jakarta.persistence:jakarta.persistence-api'
 }
 
-// core/build.gradle
+// core/build.gradle (타입 격리 핵심)
 dependencies {
-    api project(':dop-global-apps-domain')
+    // implementation = 전이 불가 → api에서 domain, plugin-sdk 타입 직접 사용 불가
+    implementation project(':dop-global-apps-domain')
+    implementation project(':plugins:plugin-sdk')
+
+    api(libs.pf4j)
+    api(libs.jasypt.spring.boot.starter)
+    compileOnly 'jakarta.persistence:jakarta.persistence-api'
+    compileOnly 'org.springframework:spring-context'
+    compileOnly 'org.springframework:spring-tx'
+    compileOnly 'tools.jackson.core:jackson-databind'
 }
 
 // infrastructure/build.gradle
@@ -376,15 +448,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter'
 }
 
-// api/build.gradle
+// api/build.gradle (domain, plugin-sdk, infrastructure 타입 직접 사용 없음)
 dependencies {
     implementation project(':dop-global-apps-core')
-    implementation project(':dop-global-apps-infrastructure')  // JpaConfig 포함
+    runtimeOnly project(':dop-global-apps-infrastructure')  // classpath용 (타입 의존 없음)
 
-    implementation project(':plugins:plugin-sdk')
+    // plugin-sdk는 직접 의존하지 않음 - core를 통해 사용
     runtimeOnly project(':plugins:slack-plugin')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -748,3 +819,4 @@ include 'dop-global-apps-batch'
 | 2026-01-21 | 0.4 | Clean Architecture 적용: core에 Repository Port 정의, api→core→domain 의존성 구조 |
 | 2026-01-21 | 0.5 | 새로운 Entry Point 추가 가이드 섹션 추가 |
 | 2026-01-21 | 0.6 | Flyway DB 마이그레이션 섹션 추가 (infrastructure 모듈에서 관리) |
+| 2026-01-22 | 0.7 | 타입 격리 적용: core가 domain/plugin-sdk를 implementation으로 의존, api는 core DTO만 사용 |

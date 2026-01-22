@@ -20,3 +20,40 @@
 
 - **Frontend**: [app/client/CLAUDE.md](app/client/CLAUDE.md)
 - **Backend**: [app/server/CLAUDE.md](app/server/CLAUDE.md)
+
+## 백엔드 의존성 구조
+
+```
+                      api
+                       │
+       ┌───────────────┼───────────────┐
+       │ impl          │               │ runtimeOnly
+       ▼               │               ▼
+     core ◀────────────┼───────── infrastructure
+       │            impl               │
+       ├─impl─▶ plugin-sdk             │ impl
+       │       (전이 불가)              │
+       │                               │
+       └─impl──────▶ domain ◀──────────┘
+                    (전이 불가)
+```
+
+- `infrastructure → core`: Repository 인터페이스 구현 (DIP)
+
+### 모듈별 역할
+
+| 모듈 | 역할 | 포함 내용 |
+|------|------|----------|
+| **api** | HTTP 진입점 | Controller만, core DTO 사용 |
+| **core** | 비즈니스 로직 | DTO, Service, Repository Port, 타입 변환 |
+| **domain** | 도메인 모델 | Entity, Enum |
+| **infrastructure** | 기술 구현체 | JPA Repository, Crypto, Config |
+| **plugin-sdk** | 플러그인 SDK | PluginExecutor, OAuthHandler, SDK DTO |
+
+### 핵심 원칙
+
+- api는 **core DTO만** 사용 (domain Entity, plugin-sdk 타입 직접 접근 불가)
+- 모든 타입 변환은 **core에서** 수행
+- `implementation` 의존 = 전이 불가 (타입 격리)
+
+> 상세 설계: [app/server/docs/DESIGN/BACKEND_LAYER.md](app/server/docs/DESIGN/BACKEND_LAYER.md)

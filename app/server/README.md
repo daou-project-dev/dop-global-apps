@@ -6,35 +6,47 @@ Spring Boot + PF4J 기반 플러그인 서버
 
 ```
 server/
-├── dop-global-apps-core/           # 핵심 인터페이스 (Repository Port, StateStorage)
-├── dop-global-apps-domain/         # 도메인 레이어 (Entity, Enum)
-│   ├── enums/                      # AuthType, PluginStatus, ScopeType 등
-│   ├── plugin/                     # Plugin Entity
-│   ├── company/                    # Company Entity
-│   ├── user/                       # User Entity
-│   ├── connection/                 # PluginConnection Entity
-│   └── credential/                 # OAuthCredential, ApiKeyCredential
-├── dop-global-apps-infrastructure/ # 인프라 레이어 (core 인터페이스 구현)
+├── dop-global-apps-api/            # HTTP 진입점 (Controller만)
+│   ├── oauth/controller/           # OAuth 컨트롤러
+│   ├── plugin/controller/          # 플러그인 컨트롤러
+│   └── execute/                    # 실행 컨트롤러
+├── dop-global-apps-core/           # 비즈니스 로직
+│   ├── dto/                        # DTO (ExecuteCommand, CredentialInfo 등)
+│   ├── enums/                      # ScopeType
+│   ├── repository/                 # Repository Port 인터페이스
+│   ├── plugin/                     # PluginRegistry, PluginService
+│   ├── connection/                 # ConnectionService
+│   ├── execute/                    # PluginExecutorService
+│   ├── credential/                 # CredentialProvider
+│   └── oauth/                      # PluginOAuthService, StateStorage
+├── dop-global-apps-domain/         # 도메인 모델 (Entity, Enum)
+├── dop-global-apps-infrastructure/ # 기술 구현체
 │   ├── persistence/                # JPA Repository 구현체
 │   ├── oauth/                      # StateStorage 구현체
 │   └── crypto/                     # 암호화
-├── dop-global-apps-api/            # API 레이어 (Entry Point)
-│   ├── oauth/                      # OAuth 컨트롤러
-│   ├── plugin/                     # 플러그인 서비스, 레지스트리
-│   ├── connection/                 # 연동 관리 서비스
-│   └── execute/                    # 플러그인 실행
 └── plugins/
     ├── plugin-sdk/                 # 플러그인 SDK
     └── slack-plugin/               # Slack 연동 플러그인
 ```
 
-## 의존성 구조 (Clean Architecture)
+## 의존성 구조
 
 ```
-api -> core -> domain
-         ↑
-   infrastructure (core 인터페이스 구현)
+                api
+                 │
+      ┌──────────┼──────────┐
+      │ impl     │          │ runtimeOnly
+      ▼          │          ▼
+    core ◀───────┼──── infrastructure
+      │       impl          │
+      ├─impl─▶ plugin-sdk   │ impl
+      │       (전이 불가)   │
+      └─impl─▶ domain ◀─────┘
+              (전이 불가)
 ```
+
+- **api**: core DTO만 사용 (domain, plugin-sdk 타입 직접 접근 불가)
+- **infrastructure → core**: Repository 인터페이스 구현 (DIP)
 
 ## 로컬 개발 환경
 
