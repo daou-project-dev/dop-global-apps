@@ -9,7 +9,7 @@
 | Framework | React | 19.x |
 | Language | TypeScript | 5.9.x |
 | Build Tool | Vite | 7.x |
-| 데이터 페칭 | TanStack Query | 5.x |
+| 데이터 페칭 | TanStack Query | package.json 참고 |
 | 상태관리 | Jotai | 2.x |
 | 불변성 | Immer | 11.x |
 | 스타일링 | CSS Modules | - |
