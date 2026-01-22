@@ -1,0 +1,9 @@
+package com.daou.dop.global.apps.core.enums;
+
+/**
+ * 연동 범위 타입 (core 정의)
+ */
+public enum ScopeType {
+    WORKSPACE,  // 워크스페이스/조직 단위
+    USER        // 사용자 단위
+}

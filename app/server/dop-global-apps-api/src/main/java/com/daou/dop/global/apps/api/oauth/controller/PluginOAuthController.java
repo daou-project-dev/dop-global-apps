@@ -1,13 +1,12 @@
 package com.daou.dop.global.apps.api.oauth.controller;
 
+import com.daou.dop.global.apps.core.connection.ConnectionService;
+import com.daou.dop.global.apps.core.dto.OAuthTokenInfo;
+import com.daou.dop.global.apps.core.dto.PluginConfigInfo;
+import com.daou.dop.global.apps.core.oauth.OAuthException;
+import com.daou.dop.global.apps.core.oauth.PluginOAuthService;
 import com.daou.dop.global.apps.core.oauth.StateStorage;
-import com.daou.dop.global.apps.plugin.sdk.OAuthHandler;
-import com.daou.dop.global.apps.plugin.sdk.PluginConfig;
-import com.daou.dop.global.apps.plugin.sdk.TokenInfo;
-import com.daou.dop.global.apps.domain.connection.PluginConnection;
-import com.daou.dop.global.apps.api.connection.service.ConnectionService;
-import com.daou.dop.global.apps.api.plugin.PluginRegistry;
-import com.daou.dop.global.apps.api.plugin.service.PluginService;
+import com.daou.dop.global.apps.core.plugin.PluginService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +27,17 @@ public class PluginOAuthController {
     private static final Logger log = LoggerFactory.getLogger(PluginOAuthController.class);
     private static final Duration STATE_TTL = Duration.ofMinutes(10);
 
-    private final PluginRegistry pluginRegistry;
+    private final PluginOAuthService pluginOAuthService;
     private final PluginService pluginService;
     private final ConnectionService connectionService;
     private final StateStorage stateStorage;
 
     public PluginOAuthController(
-            PluginRegistry pluginRegistry,
+            PluginOAuthService pluginOAuthService,
             PluginService pluginService,
             ConnectionService connectionService,
             StateStorage stateStorage) {
-        this.pluginRegistry = pluginRegistry;
+        this.pluginOAuthService = pluginOAuthService;
         this.pluginService = pluginService;
         this.connectionService = connectionService;
         this.stateStorage = stateStorage;
@@ -53,14 +52,13 @@ public class PluginOAuthController {
             @PathVariable("plugin") String pluginId,
             HttpServletRequest request) {
 
-        OAuthHandler handler = pluginRegistry.findOAuthHandler(pluginId).orElse(null);
-        if (handler == null) {
+        if (!pluginOAuthService.supportsOAuth(pluginId)) {
             log.warn("OAuthHandler not found for plugin: {}", pluginId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Unknown plugin: " + pluginId);
         }
 
-        PluginConfig config = pluginService.getPluginConfig(pluginId).orElse(null);
+        PluginConfigInfo config = pluginService.getPluginConfig(pluginId).orElse(null);
         if (config == null) {
             log.warn("Plugin config not found in DB: {}", pluginId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -69,7 +67,7 @@ public class PluginOAuthController {
 
         String state = stateStorage.generateAndStore(pluginId, STATE_TTL);
         String redirectUri = buildRedirectUri(request, pluginId);
-        String authorizationUrl = handler.buildAuthorizationUrl(config, state, redirectUri);
+        String authorizationUrl = pluginOAuthService.buildAuthorizationUrl(pluginId, config, state, redirectUri);
 
         log.info("Starting OAuth for plugin: {}", pluginId);
 
@@ -96,14 +94,13 @@ public class PluginOAuthController {
                     .body("Installation failed: " + error);
         }
 
-        OAuthHandler handler = pluginRegistry.findOAuthHandler(pluginId).orElse(null);
-        if (handler == null) {
+        if (!pluginOAuthService.supportsOAuth(pluginId)) {
             log.warn("OAuthHandler not found for plugin: {}", pluginId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Unknown plugin: " + pluginId);
         }
 
-        PluginConfig config = pluginService.getPluginConfig(pluginId).orElse(null);
+        PluginConfigInfo config = pluginService.getPluginConfig(pluginId).orElse(null);
         if (config == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Plugin not configured: " + pluginId);
@@ -117,15 +114,15 @@ public class PluginOAuthController {
 
         try {
             String redirectUri = buildRedirectUri(request, pluginId);
-            TokenInfo tokenInfo = handler.exchangeCode(config, code, redirectUri);
+            OAuthTokenInfo tokenInfo = pluginOAuthService.exchangeCode(pluginId, config, code, redirectUri);
 
-            PluginConnection connection = connectionService.saveOAuthToken(tokenInfo);
+            Long connectionId = connectionService.saveOAuthToken(tokenInfo);
 
             log.info("OAuth successful for plugin {}: {} ({}) - connectionId={}",
-                    pluginId, tokenInfo.externalName(), tokenInfo.externalId(), connection.getId());
+                    pluginId, tokenInfo.externalName(), tokenInfo.externalId(), connectionId);
 
             return ResponseEntity.ok("Installation successful! You can close this window.");
-        } catch (Exception e) {
+        } catch (OAuthException e) {
             log.error("OAuth failed for plugin {}: {}", pluginId, e.getMessage(), e);
             return ResponseEntity.internalServerError()
                     .body("Installation failed: " + e.getMessage());

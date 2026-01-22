@@ -1,7 +1,8 @@
 package com.daou.dop.global.apps.api.execute;
 
-import com.daou.dop.global.apps.plugin.sdk.ExecuteRequest;
-import com.daou.dop.global.apps.plugin.sdk.ExecuteResponse;
+import com.daou.dop.global.apps.core.dto.ExecuteCommand;
+import com.daou.dop.global.apps.core.dto.ExecuteResult;
+import com.daou.dop.global.apps.core.execute.PluginExecutorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,11 +34,11 @@ public class ExecuteController {
      * }
      */
     @PostMapping("/execute")
-    public ResponseEntity<ExecuteResponse> execute(@RequestBody ExecuteRequest request) {
-        ExecuteResponse response = executorService.execute(request);
+    public ResponseEntity<ExecuteResult> execute(@RequestBody ExecuteCommand command) {
+        ExecuteResult result = executorService.execute(command);
 
         return ResponseEntity
-                .status(response.statusCode())
-                .body(response);
+                .status(result.statusCode())
+                .body(result);
     }
 }

@@ -1,7 +1,6 @@
 package com.daou.dop.global.apps.api.plugin.service;
 
-import com.daou.dop.global.apps.api.plugin.PluginRegistry;
-import com.daou.dop.global.apps.plugin.sdk.PluginExecutor;
+import com.daou.dop.global.apps.core.plugin.PluginRegistry;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -51,19 +50,16 @@ public class PluginResourceService {
      * 플러그인 JAR 내 리소스 파일 로드
      */
     private Optional<Map<String, Object>> loadResource(String pluginId, String resourceName) {
-        Optional<PluginExecutor> executorOpt = pluginRegistry.findPluginExecutor(pluginId);
+        Optional<InputStream> streamOpt = pluginRegistry.getPluginResourceStream(pluginId, resourceName);
 
-        if (executorOpt.isEmpty()) {
-            log.warn("Plugin not found: {}", pluginId);
+        if (streamOpt.isEmpty()) {
+            log.warn("Resource not found: {} for plugin: {}", resourceName, pluginId);
             return Optional.empty();
         }
 
-        PluginExecutor executor = executorOpt.get();
-        ClassLoader classLoader = executor.getClass().getClassLoader();
-
-        try (InputStream is = classLoader.getResourceAsStream(resourceName)) {
+        try (InputStream is = streamOpt.get()) {
             if (is == null) {
-                log.warn("Resource not found: {} for plugin: {}", resourceName, pluginId);
+                log.warn("Resource stream is null: {} for plugin: {}", resourceName, pluginId);
                 return Optional.empty();
             }
 
