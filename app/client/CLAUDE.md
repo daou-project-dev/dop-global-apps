@@ -9,10 +9,54 @@
 | Framework | React | 19.x |
 | Language | TypeScript | 5.9.x |
 | Build Tool | Vite | 7.x |
+| 데이터 페칭 | TanStack Query | 5.x |
 | 상태관리 | Jotai | 2.x |
 | 불변성 | Immer | 11.x |
 | 스타일링 | CSS Modules | - |
 | 유틸리티 | lodash, clsx | - |
+
+## IDE 설정 (VS Code)
+
+### 필수 확장 프로그램
+
+- **ESLint** (`dbaeumer.vscode-eslint`)
+- **Prettier** (`esbenp.prettier-vscode`)
+
+### 설정 방법
+
+`Cmd + Shift + P` → `Preferences: Open User Settings (JSON)` → 아래 내용 추가:
+
+```json
+{
+  // 저장 시 자동 포맷팅
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // 저장 시 ESLint 자동 수정
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // ESLint 활성화
+  "eslint.enable": true,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+
+  // TypeScript/JavaScript 전용 설정
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
+```
+
+### 검증
+
+설정 후 `.tsx` 파일 저장 시:
+- Prettier 포맷팅 자동 적용
+- ESLint 에러 자동 수정
+- import 순서 자동 정렬
 
 ## 폴더 구조
 
@@ -57,6 +101,125 @@ import { datasourceApi } from './api/datasource-api';
 
 // ❌ 지양: 모든 API를 src/api/에 집중
 import { datasourceApi } from '../../api/datasource-api';
+```
+
+## 데이터 페칭 (TanStack Query)
+
+### 원칙
+
+- **useEffect + useState 금지**: 서버 데이터 조회 시 `useQuery` 사용
+- **useEffect 허용 케이스**: UI 상태 동기화 (예: 첫 번째 항목 자동 선택)
+- **Query Factory 패턴**: API 파일에 `queries` 객체 정의, 컴포넌트에서 직접 `useQuery` 사용
+
+### Query Factory 패턴
+
+API와 쿼리 설정을 같은 파일에 정의하여 응집도 향상:
+
+```typescript
+// api/plugin-api.ts
+export const pluginApi = {
+  getPlugins: async (): Promise<Plugin[]> => {
+    const response = await apiClient.get<Plugin[]>('/plugins');
+    return response.data;
+  },
+
+  getFormConfig: async (pluginId: string): Promise<PluginForm> => {
+    const response = await apiClient.get<PluginForm>(`/plugins/${pluginId}/form-config`);
+    return response.data;
+  },
+};
+
+/** Query Factory */
+export const pluginQueries = {
+  all: () => ({ queryKey: ['plugins'] as const }),
+
+  list: () => ({
+    queryKey: [...pluginQueries.all().queryKey, 'list'] as const,
+    queryFn: () => pluginApi.getPlugins(),
+  }),
+
+  form: (pluginId: string) => ({
+    queryKey: [...pluginQueries.all().queryKey, pluginId, 'form'] as const,
+    queryFn: () => pluginApi.getFormConfig(pluginId),
+  }),
+};
+```
+
+### 컴포넌트에서 사용
+
+```typescript
+// ✅ 권장: Query Factory 사용
+import { useQuery } from '@tanstack/react-query';
+import { pluginQueries } from './api';
+
+const { data: plugins = [], isLoading } = useQuery(pluginQueries.list());
+
+// 조건부 쿼리
+const { data: formData } = useQuery({
+  ...pluginQueries.form(pluginId!),
+  enabled: !!pluginId,
+});
+```
+
+```typescript
+// ❌ 지양: useEffect로 fetch
+useEffect(() => {
+  const fetchData = async () => {
+    const data = await pluginApi.getPlugins();
+    setPlugins(data);
+  };
+  fetchData();
+}, []);
+```
+
+### Query Key 구조
+
+```typescript
+// all(): 해당 도메인 전체 무효화용
+pluginQueries.all()  // ['plugins']
+
+// list(): 목록 조회
+pluginQueries.list()  // ['plugins', 'list']
+
+// 상세 조회
+pluginQueries.form(id)  // ['plugins', id, 'form']
+```
+
+### 병렬 쿼리
+
+```typescript
+form: (pluginId: string) => ({
+  queryKey: [...pluginQueries.all().queryKey, pluginId, 'form'] as const,
+  queryFn: async () => {
+    const [formConfig, testForm] = await Promise.all([
+      pluginApi.getFormConfig(pluginId),
+      pluginApi.getTestForm(pluginId),
+    ]);
+    return { formConfig, testForm };
+  },
+}),
+```
+
+### 커스텀 훅 사용 시점
+
+Query Factory로 대부분 해결. 커스텀 훅은 다음 경우에만:
+
+- 복잡한 후처리 로직
+- 여러 쿼리 조합
+- 특수한 에러/로딩 처리
+
+```typescript
+// 복잡한 로직이 필요한 경우에만 커스텀 훅
+export function usePluginWithPermissions(pluginId: string) {
+  const { data: plugin } = useQuery(pluginQueries.detail(pluginId));
+  const { data: permissions } = useQuery(permissionQueries.forPlugin(pluginId));
+
+  const canEdit = useMemo(() => {
+    // 복잡한 권한 계산 로직
+  }, [plugin, permissions]);
+
+  return { plugin, canEdit };
+}
 ```
 
 ## 상태관리 (Jotai)
@@ -262,17 +425,28 @@ export function Button({ variant, disabled }: ButtonProps) {
 
 ## 에러 처리
 
-TanStack Query 기반 에러 처리 활용
+### Query 에러 처리
 
 ```typescript
-const { data, error, isLoading } = useQuery({
-  queryKey: ['user', userId],
-  queryFn: () => fetchUser(userId),
-});
+// 커스텀 훅에서 에러 문자열로 변환
+export function useFetchPlugins() {
+  const { data, isLoading, error } = useQuery<Plugin[]>({
+    queryKey: ['plugins'],
+    queryFn: () => pluginApi.getPlugins(),
+  });
 
-if (error) {
-  return <ErrorFallback error={error} />;
+  return {
+    plugins: data ?? [],
+    isLoading,
+    error: error instanceof Error ? error.message : null,
+  };
 }
+
+// 컴포넌트에서 사용
+const { plugins, isLoading, error } = useFetchPlugins();
+
+if (isLoading) return <Loading />;
+if (error) return <ErrorMessage message={error} />;
 ```
 
 ## 주석 규칙
