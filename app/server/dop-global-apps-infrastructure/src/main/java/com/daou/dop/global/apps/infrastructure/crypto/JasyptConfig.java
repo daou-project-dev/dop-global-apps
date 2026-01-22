@@ -24,10 +24,11 @@ public class JasyptConfig {
 
         config.setPassword(encryptorPassword);
         config.setPoolSize("1");
-        config.setAlgorithm("PBEWithMD5AndDES");
+        config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
         config.setStringOutputType("base64");
         config.setKeyObtentionIterations("1000");
         config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
         encryptor.setConfig(config);
         return encryptor;
     }
