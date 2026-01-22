@@ -7,6 +7,14 @@
 ```
 dop-global-apps/
 ├── app/
+│   ├── client/                     # 프론트엔드 (React)
+│   │   ├── src/
+│   │   │   ├── api/                    # 공통 API 클라이언트
+│   │   │   ├── components/             # 공통 UI 컴포넌트
+│   │   │   ├── pages/                  # 페이지 컴포넌트
+│   │   │   ├── store/                  # Jotai atoms
+│   │   │   └── routes/                 # 라우터 설정
+│   │   └── vite.config.ts
 │   └── server/                     # 백엔드 서버
 │       ├── dop-global-apps-api/        # Controller (HTTP 진입점)
 │       ├── dop-global-apps-core/       # DTO, Service, Repository Port
@@ -50,6 +58,8 @@ dop-global-apps/
 
 ## 기술 스택
 
+### Backend
+
 | 분류 | 기술 |
 |------|------|
 | Language | Java 25 + Virtual Threads |
@@ -58,18 +68,41 @@ dop-global-apps/
 | Database | PostgreSQL / H2 |
 | Migration | Flyway 11.x |
 
+### Frontend
+
+| 분류 | 기술 |
+|------|------|
+| Framework | React 19 |
+| Language | TypeScript 5.9 |
+| Build Tool | Vite 7 |
+| 데이터 페칭 | TanStack Query 5 |
+| 상태관리 | Jotai 2 |
+| 스타일링 | CSS Modules |
+| 최적화 | React Compiler |
+
 ## 시작하기
+
+### Backend
 
 ```bash
 cd app/server
 ./gradlew bootRun
 ```
 
-상세 실행 방법: [app/server/README.md](app/server/README.md)
+### Frontend
+
+```bash
+cd app/client
+pnpm install
+pnpm dev
+```
+
+상세 실행 방법: [서버](app/server/README.md) | [클라이언트](app/client/README.md)
 
 ## 문서
 
 - [서버 가이드](app/server/README.md)
+- [클라이언트 가이드](app/client/CLAUDE.md)
 - [설계 문서](app/server/docs/DESIGN/)
 - [Entry Point 추가 가이드](app/server/docs/DESIGN/BACKEND_LAYER.md#9-새로운-entry-point-추가-가이드)
 
