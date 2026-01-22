@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 
-import type { PluginTestForm, TestTab } from '../../../../../store/types';
 import { slackApi } from '../../../api';
+
+import type { PluginTestForm, TestTab } from '../../../../../store/types';
 import type { InputsMap, ResultsMap, TestResult } from '../types';
 
 interface UseTestFormOptions {
@@ -19,11 +20,6 @@ interface UseTestFormReturn {
   isLoading: boolean;
   execute: () => Promise<void>;
   validateInputs: () => string | null;
-}
-
-/** bodyTemplate의 {{name}} 플레이스홀더를 입력값으로 치환 */
-function replaceTemplate(template: string, values: Record<string, string>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => values[key] ?? '');
 }
 
 export function useTestForm({ testForm, externalId }: UseTestFormOptions): UseTestFormReturn {

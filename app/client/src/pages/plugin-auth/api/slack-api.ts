@@ -21,8 +21,7 @@ export interface SlackChannel {
 }
 
 export const slackApi = {
-  execute: (request: ExecuteRequest) =>
-    apiClient.post<ExecuteResponse>('/execute', request),
+  execute: (request: ExecuteRequest) => apiClient.post<ExecuteResponse>('/execute', request),
 
   getChannels: (externalId: string) =>
     slackApi.execute({

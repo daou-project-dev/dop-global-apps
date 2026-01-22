@@ -1,6 +1,6 @@
-import type { TestControlProps } from '../../../../../../store/types';
-
 import styles from './test-control-renderer.module.css';
+
+import type { TestControlProps } from '../../../../../../store/types';
 
 interface TestControlRendererProps {
   control: TestControlProps;
@@ -8,11 +8,7 @@ interface TestControlRendererProps {
   onChange: (value: string) => void;
 }
 
-export function TestControlRenderer({
-  control,
-  value,
-  onChange,
-}: TestControlRendererProps) {
+export function TestControlRenderer({ control, value, onChange }: TestControlRendererProps) {
   const { controlType, label, name, placeholder, required, options } = control;
 
   const renderControl = () => {

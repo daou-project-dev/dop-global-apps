@@ -1,11 +1,10 @@
-import type { PluginTestForm } from '../../../../store/types';
-
-import { useTestForm } from './hooks/use-test-form';
-import { TestTabList } from './components/test-tab-list';
 import { TestControlRenderer } from './components/test-control-renderer';
 import { TestResultPanel } from './components/test-result-panel';
-
+import { TestTabList } from './components/test-tab-list';
+import { useTestForm } from './hooks/use-test-form';
 import styles from './test-form-renderer.module.css';
+
+import type { PluginTestForm } from '../../../../store/types';
 
 interface TestFormRendererProps {
   testForm: PluginTestForm;
@@ -28,15 +27,9 @@ export function TestFormRenderer({ testForm, externalId }: TestFormRendererProps
     <div className={styles.container}>
       <h3 className={styles.title}>API 테스트</h3>
 
-      <TestTabList
-        tabs={testForm.tabs}
-        activeTabId={activeTabId}
-        onTabChange={setActiveTabId}
-      />
+      <TestTabList tabs={testForm.tabs} activeTabId={activeTabId} onTabChange={setActiveTabId} />
 
-      {activeTab.description && (
-        <p className={styles.description}>{activeTab.description}</p>
-      )}
+      {activeTab.description && <p className={styles.description}>{activeTab.description}</p>}
 
       <div className={styles.controls}>
         {activeTab.controls.map((control) => (
@@ -50,12 +43,7 @@ export function TestFormRenderer({ testForm, externalId }: TestFormRendererProps
       </div>
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.button}
-          onClick={execute}
-          disabled={isLoading}
-        >
+        <button type="button" className={styles.button} onClick={execute} disabled={isLoading}>
           {isLoading ? '실행 중...' : '실행'}
         </button>
       </div>
