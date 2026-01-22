@@ -6,3 +6,5 @@ export type {
   SlackExecuteResponse,
   SlackChannel,
 } from './slack-api';
+export { pluginApi } from './plugin-api';
+export { connectionApi } from './connection-api';

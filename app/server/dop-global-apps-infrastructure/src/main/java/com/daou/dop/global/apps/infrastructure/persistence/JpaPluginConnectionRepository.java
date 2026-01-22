@@ -31,6 +31,8 @@ public interface JpaPluginConnectionRepository extends JpaRepository<PluginConne
 
     List<PluginConnection> findByCompanyIdAndStatus(Long companyId, ConnectionStatus status);
 
+    List<PluginConnection> findByStatus(ConnectionStatus status);
+
     List<PluginConnection> findByUserId(Long userId);
 
     boolean existsByPluginIdAndExternalId(String pluginId, String externalId);

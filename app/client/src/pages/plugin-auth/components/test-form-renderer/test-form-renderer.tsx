@@ -9,9 +9,10 @@ import styles from './test-form-renderer.module.css';
 
 interface TestFormRendererProps {
   testForm: PluginTestForm;
+  externalId: string;
 }
 
-export function TestFormRenderer({ testForm }: TestFormRendererProps) {
+export function TestFormRenderer({ testForm, externalId }: TestFormRendererProps) {
   const {
     activeTab,
     activeTabId,
@@ -21,7 +22,7 @@ export function TestFormRenderer({ testForm }: TestFormRendererProps) {
     result,
     isLoading,
     execute,
-  } = useTestForm({ testForm });
+  } = useTestForm({ testForm, externalId });
 
   return (
     <div className={styles.container}>

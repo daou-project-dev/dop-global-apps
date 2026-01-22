@@ -6,6 +6,7 @@ import type { InputsMap, ResultsMap, TestResult } from '../types';
 
 interface UseTestFormOptions {
   testForm: PluginTestForm;
+  externalId: string;
 }
 
 interface UseTestFormReturn {
@@ -25,7 +26,7 @@ function replaceTemplate(template: string, values: Record<string, string>): stri
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => values[key] ?? '');
 }
 
-export function useTestForm({ testForm }: UseTestFormOptions): UseTestFormReturn {
+export function useTestForm({ testForm, externalId }: UseTestFormOptions): UseTestFormReturn {
   const [activeTabId, setActiveTabId] = useState(testForm.tabs[0]?.tabId ?? '');
   const [inputsMap, setInputsMap] = useState<InputsMap>(() => {
     const initial: InputsMap = {};
@@ -92,7 +93,7 @@ export function useTestForm({ testForm }: UseTestFormOptions): UseTestFormReturn
 
       // inputs를 params로 변환 (빈 문자열 제외)
       const params: Record<string, unknown> = {
-        externalId: 'T0A8Q035DED', // TODO: 동적으로 변경 필요
+        externalId,
       };
       Object.entries(inputs).forEach(([key, value]) => {
         if (value !== '') {
@@ -137,7 +138,7 @@ export function useTestForm({ testForm }: UseTestFormOptions): UseTestFormReturn
     } finally {
       setIsLoading(false);
     }
-  }, [activeTab, activeTabId, inputs, validateInputs]);
+  }, [activeTab, activeTabId, inputs, validateInputs, externalId, testForm.pluginId]);
 
   return {
     activeTab,

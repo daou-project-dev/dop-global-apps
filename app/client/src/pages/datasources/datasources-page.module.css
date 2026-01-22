@@ -1,25 +1,157 @@
 .container {
-  padding: 0;
+  display: flex;
+  gap: 24px;
+  height: 100%;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sidebarTitle {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
 }
 
 .header {
-  margin: 0 0 24px;
+  margin: 0 0 8px;
   font-size: 1.5rem;
   font-weight: 600;
   color: #222;
 }
 
-.placeholder {
+.subHeader {
+  margin: 0 0 24px;
+  font-size: 0.875rem;
   color: #666;
-  font-size: 0.9375rem;
+}
+
+.connectionButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.875rem;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.connectionButton:hover {
+  background-color: #eee;
+  border-color: #ccc;
+}
+
+.connectionButtonActive {
+  background-color: #08a7bf;
+  color: #fff;
+  border-color: #08a7bf;
+}
+
+.connectionButtonActive:hover {
+  background-color: #079aae;
+  border-color: #079aae;
+}
+
+.connectionButtonActive .connectionPlugin {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.pluginIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.connectionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.connectionName {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.connectionPlugin {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.loading,
+.error,
+.empty {
+  font-size: 0.875rem;
+  padding: 8px 0;
+}
+
+.loading {
+  color: #666;
+}
+
+.error {
+  color: #c00;
+}
+
+.empty {
+  color: #888;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #888;
 }
 
 @media (prefers-color-scheme: dark) {
+  .sidebar {
+    background-color: #2a2a2a;
+  }
+
+  .sidebarTitle {
+    color: #eee;
+  }
+
+  .connectionButton {
+    background-color: #333;
+    color: #eee;
+    border-color: #444;
+  }
+
+  .connectionButton:hover {
+    background-color: #3a3a3a;
+    border-color: #555;
+  }
+
   .header {
     color: #eee;
   }
 
-  .placeholder {
+  .subHeader {
     color: #999;
   }
 }

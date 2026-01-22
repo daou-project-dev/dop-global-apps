@@ -1,5 +1,13 @@
 import { apiClient } from '../../../api/client';
-import type { PluginForm, PluginTestForm } from '../../../store/types';
+import type { Plugin, PluginForm, PluginTestForm } from '../../../store/types';
+
+/**
+ * 활성 플러그인 목록 조회
+ */
+export const getPlugins = async (): Promise<Plugin[]> => {
+  const response = await apiClient.get<Plugin[]>('/plugins');
+  return response.data;
+};
 
 /**
  * 플러그인 폼 설정 조회
@@ -18,6 +26,7 @@ export const getTestForm = async (pluginId: string): Promise<PluginTestForm> => 
 };
 
 export const pluginApi = {
+  getPlugins,
   getFormConfig,
   getTestForm,
 };

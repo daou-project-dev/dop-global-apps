@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.daou.dop.global.apps.api.plugin.dto.PluginResponse;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,10 +44,20 @@ public class PluginService {
     }
 
     /**
-     * 활성 플러그인 목록 조회
+     * 활성 플러그인 목록 조회 (Entity)
      */
     public List<Plugin> findAllActive() {
         return pluginRepository.findByStatus(PluginStatus.ACTIVE);
+    }
+
+    /**
+     * 활성 플러그인 목록 조회 (DTO)
+     * - Entity → DTO 변환하여 민감 정보 제외
+     */
+    public List<PluginResponse> getActivePlugins() {
+        return findAllActive().stream()
+                .map(PluginResponse::from)
+                .toList();
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.daou.dop.global.apps.api.connection.service;
 
+import com.daou.dop.global.apps.api.connection.dto.ConnectionResponse;
 import com.daou.dop.global.apps.core.repository.OAuthCredentialRepository;
 import com.daou.dop.global.apps.core.repository.PluginConnectionRepository;
 import com.daou.dop.global.apps.domain.connection.PluginConnection;
@@ -70,6 +71,20 @@ public class ConnectionService {
      */
     public List<PluginConnection> findActiveByCompanyId(Long companyId) {
         return connectionRepository.findByCompanyIdAndStatus(companyId, ConnectionStatus.ACTIVE);
+    }
+
+    /**
+     * 활성 연동 목록 조회 (DTO)
+     *
+     * @param companyId 고객사 ID (nullable - null이면 companyId가 null인 연동만 조회)
+     * @param userId    사용자 ID (nullable - 현재 미사용)
+     * @return 연동 목록 DTO
+     */
+    public List<ConnectionResponse> getActiveConnections(Long companyId, Long userId) {
+        return connectionRepository.findByCompanyIdAndStatus(companyId, ConnectionStatus.ACTIVE)
+                .stream()
+                .map(ConnectionResponse::from)
+                .toList();
     }
 
     // ========== 연동 + 토큰 저장 ==========
