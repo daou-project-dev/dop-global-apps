@@ -1,12 +1,8 @@
-import {
-  createRouter,
-  createRootRoute,
-  createRoute,
-} from '@tanstack/react-router';
+import { createRouter, createRootRoute, createRoute } from '@tanstack/react-router';
 
 import { Layout } from '../components/layout';
-import { PluginAuthPage } from '../pages/plugin-auth';
 import { DatasourcesPage } from '../pages/datasources';
+import { PluginAuthPage } from '../pages/plugin-auth';
 
 const rootRoute = createRootRoute({
   component: Layout,
