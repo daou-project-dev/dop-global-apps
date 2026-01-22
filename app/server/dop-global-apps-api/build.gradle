@@ -33,6 +33,7 @@ dependencies {
 
     // 플러그인 런타임 로딩
     runtimeOnly project(':plugins:slack-plugin')
+    runtimeOnly project(':plugins:google-calendar-plugin')
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
