@@ -30,9 +30,7 @@ logs/
 
 # Environment
 .env
-.env.local
-.env.*.local
-
+.env.*
 # SSL Certificates (mkcert)
 certs/
 *.pem
