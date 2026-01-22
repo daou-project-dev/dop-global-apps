@@ -19,6 +19,8 @@ public interface PluginConnectionRepository {
 
     List<PluginConnection> findByCompanyIdAndStatus(Long companyId, ConnectionStatus status);
 
+    List<PluginConnection> findByCompanyIdIsNullAndStatus(ConnectionStatus status);
+
     List<PluginConnection> findByStatus(ConnectionStatus status);
 
     PluginConnection save(PluginConnection connection);

@@ -87,8 +87,10 @@ public class ConnectionService implements CredentialProvider {
      * @return 연동 목록
      */
     public List<ConnectionInfo> getActiveConnections(Long companyId, Long userId) {
-        return connectionRepository.findByCompanyIdAndStatus(companyId, ConnectionStatus.ACTIVE)
-                .stream()
+        List<PluginConnection> connections = (companyId == null)
+                ? connectionRepository.findByCompanyIdIsNullAndStatus(ConnectionStatus.ACTIVE)
+                : connectionRepository.findByCompanyIdAndStatus(companyId, ConnectionStatus.ACTIVE);
+        return connections.stream()
                 .map(this::toConnectionInfo)
                 .toList();
     }
