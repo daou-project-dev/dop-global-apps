@@ -1,0 +1,97 @@
+package com.daou.dop.global.apps.core.dto;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 플러그인 설정 정보 (core ↔ api)
+ *
+ * @param pluginId     플러그인 식별자
+ * @param displayName  표시명
+ * @param clientId     OAuth Client ID
+ * @param clientSecret OAuth Client Secret
+ * @param secrets      추가 민감 정보
+ * @param metadata     설정 정보
+ */
+public record PluginConfigInfo(
+        String pluginId,
+        String displayName,
+        String clientId,
+        String clientSecret,
+        Map<String, String> secrets,
+        Map<String, Object> metadata
+) {
+    public String getString(String key) {
+        if (metadata == null) return null;
+        Object value = metadata.get(key);
+        return value != null ? value.toString() : null;
+    }
+
+    public String getString(String key, String defaultValue) {
+        String value = getString(key);
+        return value != null ? value : defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getStringList(String key) {
+        if (metadata == null) return List.of();
+        Object value = metadata.get(key);
+        if (value instanceof List) {
+            return ((List<?>) value).stream()
+                    .map(Object::toString)
+                    .toList();
+        }
+        return List.of();
+    }
+
+    public String getSecret(String key) {
+        return secrets != null ? secrets.get(key) : null;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String pluginId;
+        private String displayName;
+        private String clientId;
+        private String clientSecret;
+        private Map<String, String> secrets;
+        private Map<String, Object> metadata;
+
+        public Builder pluginId(String pluginId) {
+            this.pluginId = pluginId;
+            return this;
+        }
+
+        public Builder displayName(String displayName) {
+            this.displayName = displayName;
+            return this;
+        }
+
+        public Builder clientId(String clientId) {
+            this.clientId = clientId;
+            return this;
+        }
+
+        public Builder clientSecret(String clientSecret) {
+            this.clientSecret = clientSecret;
+            return this;
+        }
+
+        public Builder secrets(Map<String, String> secrets) {
+            this.secrets = secrets;
+            return this;
+        }
+
+        public Builder metadata(Map<String, Object> metadata) {
+            this.metadata = metadata;
+            return this;
+        }
+
+        public PluginConfigInfo build() {
+            return new PluginConfigInfo(pluginId, displayName, clientId, clientSecret, secrets, metadata);
+        }
+    }
+}

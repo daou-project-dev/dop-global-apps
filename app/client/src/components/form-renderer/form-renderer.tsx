@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 import clsx from 'clsx';
 
-import { currentPluginAtom, currentDatasourceAtom } from '../../store';
+import { currentPluginAtom } from '../../store';
 import type { ControlProps, ControlType } from '../../store';
 import {
   InputTextControl,
@@ -11,6 +11,11 @@ import {
 
 import styles from './form-renderer.module.css';
 
+interface FormRendererProps {
+  onSubmit?: () => void;
+  isSubmitting?: boolean;
+}
+
 const ControlFactory: Record<ControlType, React.FC<ControlProps>> = {
   INPUT_TEXT: InputTextControl,
   DROP_DOWN: DropDownControl,
@@ -18,20 +23,10 @@ const ControlFactory: Record<ControlType, React.FC<ControlProps>> = {
   RADIO_BUTTON: RadioButtonControl,
 };
 
-export function FormRenderer() {
+export function FormRenderer({ onSubmit, isSubmitting = false }: FormRendererProps) {
   const [currentPlugin] = useAtom(currentPluginAtom);
-  const [currentDatasource] = useAtom(currentDatasourceAtom);
 
   const isOAuth = currentPlugin.authType === 'oAuth2';
-
-  const handleSave = () => {
-    console.log('Saving Datasource:', currentDatasource);
-    alert('Datasource Saved! Check console for JSON.');
-  };
-
-  const handleAuthorize = () => {
-    alert('Redirecting to Google OAuth...');
-  };
 
   return (
     <div>
@@ -44,18 +39,17 @@ export function FormRenderer() {
       })}
 
       <div className={styles.formFooter}>
-        {isOAuth ? (
-          <button
-            className={clsx(styles.button, styles.oauthButton)}
-            onClick={handleAuthorize}
-          >
-            Save and Authorize
-          </button>
-        ) : (
-          <button className={styles.button} onClick={handleSave}>
-            Save
-          </button>
-        )}
+        <button
+          className={clsx(styles.button, isOAuth && styles.oauthButton)}
+          onClick={onSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting
+            ? '저장 중...'
+            : isOAuth
+              ? 'Save and Authorize'
+              : 'Save'}
+        </button>
       </div>
     </div>
   );

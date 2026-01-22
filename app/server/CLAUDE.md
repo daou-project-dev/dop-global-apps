@@ -10,15 +10,26 @@
 - PF4J 3.14.1 (플러그인 시스템)
 - PostgreSQL (개발/운영) / H2 (로컬)
 
+## 설계 문서
+
+- [백엔드 레이어 설계](docs/DESIGN/BACKEND_LAYER.md) - 모듈 구조, 의존성, API
+- [플러그인 아키텍처](docs/DESIGN/PLUGIN.md) - SDK, 플러그인 개발
+- [도메인 모델](docs/DESIGN/DOMAIN.md) - Entity, Enum
+
 ## 모듈 구조
 
 ```
 server/
-├── dop-global-apps-core/    # 공통 유틸리티, 플러그인 인터페이스
-├── dop-global-apps-server/  # Entry Point, Spring Boot 애플리케이션
+├── dop-global-apps-api/     # HTTP 진입점 (Controller)
+├── dop-global-apps-core/    # 비즈니스 로직 (DTO, Service, Repository Port)
+├── dop-global-apps-domain/  # 도메인 모델 (Entity, Enum)
+├── dop-global-apps-infrastructure/  # 기술 구현체 (JPA, Crypto)
 └── plugins/
+    ├── plugin-sdk/          # 플러그인 SDK
     └── slack-plugin/        # Slack 연동 플러그인
 ```
+
+> 의존성 구조는 루트 [CLAUDE.md](../../CLAUDE.md) 참조
 
 ## 빌드 명령어
 

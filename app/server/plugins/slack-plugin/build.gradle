@@ -3,7 +3,14 @@ plugins {
 }
 
 dependencies {
+    // V2: plugin-sdk 의존
+    compileOnly project(':plugins:plugin-sdk')
+
+    // V1 호환: core 의존 (추후 제거 예정)
     implementation project(':dop-global-apps-core')
+
+    implementation(libs.slack.bolt)
+    implementation(libs.slack.api.client)
     annotationProcessor(libs.pf4j)
 }
 

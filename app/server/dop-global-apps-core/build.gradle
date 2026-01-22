@@ -3,5 +3,17 @@ plugins {
 }
 
 dependencies {
+    implementation project(':dop-global-apps-domain')
+    implementation project(':plugins:plugin-sdk')
+
     api(libs.pf4j)
+    api(libs.jasypt.spring.boot.starter)
+    compileOnly(libs.slack.bolt)
+
+    // JPA AttributeConverter, Spring annotations - Spring Boot BOM에서 버전 관리
+    compileOnly 'jakarta.annotation:jakarta.annotation-api'
+    compileOnly 'jakarta.persistence:jakarta.persistence-api'
+    compileOnly 'org.springframework:spring-context'
+    compileOnly 'org.springframework:spring-tx'
+    compileOnly 'tools.jackson.core:jackson-databind'
 }

@@ -10,3 +10,6 @@ target/
 *.class
 *.jar
 !gradle/wrapper/*.jar
+
+# Secret files
+**/application-secret.yml

@@ -16,16 +16,47 @@
 
 ## 폴더 구조
 
-타입별 그룹핑 방식 사용
+기능/페이지 기반 구조 사용
 
 ```
 src/
-├── components/     # UI 컴포넌트
-├── hooks/          # 커스텀 훅
+├── api/            # 공통 API 클라이언트
+│   └── client.ts   # fetch wrapper
+├── components/     # 공통 UI 컴포넌트
+├── hooks/          # 공통 커스텀 훅
+├── pages/          # 페이지 컴포넌트
+│   └── plugin-auth/
+│       ├── api/    # 페이지 전용 API
+│       ├── index.ts
+│       └── plugin-auth-page.tsx
+├── routes/         # 라우터 설정
 ├── store/          # Jotai atoms
 ├── utils/          # 유틸리티 함수
 ├── types/          # 공통 타입 정의
 └── assets/         # 정적 자원
+```
+
+### API 배치 규칙
+
+- **공통 클라이언트**: `src/api/client.ts` - fetch wrapper, 인터셉터 등
+- **도메인별 API**: 사용하는 페이지/기능 디렉토리 내 `api/` 폴더에 배치
+
+```
+src/
+├── api/
+│   └── client.ts           # 공통 fetch wrapper
+└── pages/
+    └── plugin-auth/
+        └── api/
+            └── datasource-api.ts  # plugin-auth 전용 API
+```
+
+```typescript
+// ✅ 권장: 사용처에 API 배치
+import { datasourceApi } from './api/datasource-api';
+
+// ❌ 지양: 모든 API를 src/api/에 집중
+import { datasourceApi } from '../../api/datasource-api';
 ```
 
 ## 상태관리 (Jotai)
