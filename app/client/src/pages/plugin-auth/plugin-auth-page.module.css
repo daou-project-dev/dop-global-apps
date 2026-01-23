@@ -113,6 +113,33 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.authInfo {
+  margin: 0 0 16px;
+  padding: 12px;
+  background-color: #e8f4f8;
+  color: #0077b6;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.testFormWrapper {
+  max-width: 700px;
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.authSuccess {
+  margin: 0 0 16px;
+  padding: 12px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .errorMessage {
   margin: 16px 0 0;
   padding: 12px;

@@ -69,11 +69,11 @@ public class PluginRegistry implements PluginOAuthService {
      * 플러그인 JAR 내 리소스 스트림 조회
      */
     public Optional<InputStream> getPluginResourceStream(String pluginId, String resourceName) {
-        return findPluginExecutor(pluginId)
-                .map(executor -> {
-                    ClassLoader classLoader = executor.getClass().getClassLoader();
-                    return classLoader.getResourceAsStream(resourceName);
-                });
+        Optional<PluginExecutor> pluginExecutor = findPluginExecutor(pluginId);
+        return pluginExecutor.map(executor -> {
+            ClassLoader classLoader = executor.getClass().getClassLoader();
+            return classLoader.getResourceAsStream(resourceName);
+        });
     }
 
     // ========== 내부 조회 메서드 ==========
