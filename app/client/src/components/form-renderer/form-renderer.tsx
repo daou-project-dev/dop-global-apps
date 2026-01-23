@@ -24,6 +24,14 @@ export function FormRenderer({ onSubmit, isSubmitting = false }: FormRendererPro
   const [currentPlugin] = useAtom(currentPluginAtom);
 
   const isOAuth = currentPlugin.authType === 'oAuth2';
+  const isServiceAccount = currentPlugin.authType === 'serviceAccount';
+
+  const getButtonText = () => {
+    if (isSubmitting) return '처리 중...';
+    if (isOAuth) return 'Save and Authorize';
+    if (isServiceAccount) return '인증';
+    return 'Save';
+  };
 
   return (
     <div>
@@ -36,11 +44,11 @@ export function FormRenderer({ onSubmit, isSubmitting = false }: FormRendererPro
 
       <div className={styles.formFooter}>
         <button
-          className={clsx(styles.button, isOAuth && styles.oauthButton)}
+          className={clsx(styles.button, (isOAuth || isServiceAccount) && styles.oauthButton)}
           onClick={onSubmit}
           disabled={isSubmitting}
         >
-          {isSubmitting ? '저장 중...' : isOAuth ? 'Save and Authorize' : 'Save'}
+          {getButtonText()}
         </button>
       </div>
     </div>

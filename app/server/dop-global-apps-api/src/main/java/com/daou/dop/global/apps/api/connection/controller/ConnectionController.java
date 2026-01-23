@@ -1,17 +1,18 @@
 package com.daou.dop.global.apps.api.connection.controller;
 
 import com.daou.dop.global.apps.api.connection.dto.ConnectionResponse;
+import com.daou.dop.global.apps.api.connection.dto.CreateConnectionRequest;
 import com.daou.dop.global.apps.core.connection.ConnectionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Connection API
  * - GET /api/connections: 활성 연동 목록 조회
+ * - POST /api/connections: 간단한 연동 생성
  */
 @RestController
 @RequestMapping("/api/connections")
@@ -36,5 +37,21 @@ public class ConnectionController {
                 .map(ConnectionResponse::from)
                 .toList();
         return ResponseEntity.ok(connections);
+    }
+
+    /**
+     * 간단한 연동 생성 (Service Account, Local ADC 등)
+     */
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> createConnection(@RequestBody CreateConnectionRequest request) {
+        Long connectionId = connectionService.createSimpleConnection(
+                request.pluginId(),
+                request.externalId(),
+                request.externalName()
+        );
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "connectionId", connectionId
+        ));
     }
 }
