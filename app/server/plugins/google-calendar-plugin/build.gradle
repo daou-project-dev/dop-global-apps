@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+}
+
+dependencies {
+    // Plugin SDK
+    compileOnly project(':plugins:plugin-sdk')
+
+    // PF4J
+    compileOnly(libs.pf4j)
+    annotationProcessor(libs.pf4j)
+
+    // Google Calendar API
+    implementation(libs.google.api.client)
+    implementation(libs.google.api.services.calendar)
+    implementation(libs.google.auth.library.oauth2.http)
+
+    // Lombok
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+
+    // SLF4J
+    compileOnly 'org.slf4j:slf4j-api:2.0.16'
+}
+
+jar {
+    manifest {
+        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.google.calendar.GoogleCalendarPlugin',
+                   'Plugin-Id': 'google-calendar-plugin',
+                   'Plugin-Version': '0.0.1',
+                   'Plugin-Provider': 'Daou Tech'
+    }
+}

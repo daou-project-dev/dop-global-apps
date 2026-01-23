@@ -62,7 +62,7 @@ export interface Datasource {
 export interface PluginForm {
   pluginId: string;
   pluginName: string;
-  authType: 'oAuth2' | 'form';
+  authType: 'oAuth2' | 'form' | 'serviceAccount';
   formConfig: ControlProps[]; // The "form.json"
 }
 
