@@ -67,13 +67,22 @@ public class PluginRegistry implements PluginOAuthService {
 
     /**
      * 플러그인 JAR 내 리소스 스트림 조회
+     * 개발 환경에서 ClassLoader 공유 문제 해결을 위해 pluginId 기반 경로 우선 사용
      */
     public Optional<InputStream> getPluginResourceStream(String pluginId, String resourceName) {
-        return findPluginExecutor(pluginId)
-                .map(executor -> {
-                    ClassLoader classLoader = executor.getClass().getClassLoader();
-                    return classLoader.getResourceAsStream(resourceName);
-                });
+        Optional<PluginExecutor> pluginExecutor = findPluginExecutor(pluginId);
+        return pluginExecutor.map(executor -> {
+            ClassLoader classLoader = executor.getClass().getClassLoader();
+            // 1. pluginId 기반 경로 시도 (예: google-calendar/form-config.json)
+            InputStream stream = classLoader.getResourceAsStream(pluginId + "/" + resourceName);
+            if (stream != null) {
+                log.debug("Loaded resource from pluginId path: {}/{}", pluginId, resourceName);
+                return stream;
+            }
+            // 2. 기존 경로 fallback (예: form-config.json)
+            log.debug("Fallback to root path: {}", resourceName);
+            return classLoader.getResourceAsStream(resourceName);
+        });
     }
 
     // ========== 내부 조회 메서드 ==========

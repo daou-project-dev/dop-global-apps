@@ -10,6 +10,10 @@ hypersistence-utils = "3.9.0"
 slack-bolt = "1.44.2"
 jasypt = "3.0.5"
 flyway = "11.14.1"
+google-api-client = "2.7.0"
+google-oauth-client = "1.36.0"
+google-api-services-calendar = "v3-rev20241101-2.0.0"
+google-auth-library = "1.30.0"
 
 [libraries]
 # Spring Boot
@@ -37,6 +41,12 @@ slack-api-client = { module = "com.slack.api:slack-api-client", version.ref = "s
 
 # Jasypt
 jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-boot-starter", version.ref = "jasypt" }
+
+# Google API
+google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "google-api-client" }
+google-oauth-client-jetty = { module = "com.google.oauth-client:google-oauth-client-jetty", version.ref = "google-oauth-client" }
+google-api-services-calendar = { module = "com.google.apis:google-api-services-calendar", version.ref = "google-api-services-calendar" }
+google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "google-auth-library" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
