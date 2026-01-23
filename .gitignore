@@ -31,6 +31,7 @@ logs/
 # Environment
 .env
 .env.*
+
 # SSL Certificates (mkcert)
 certs/
 *.pem

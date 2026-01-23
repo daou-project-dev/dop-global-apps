@@ -1,3 +1,39 @@
+// --- Plugin Types ---
+
+/** 인증 타입 */
+export type AuthType = 'OAUTH2' | 'API_KEY' | 'BASIC';
+
+/** 플러그인 상태 */
+export type PluginStatus = 'ACTIVE' | 'INACTIVE';
+
+/** 플러그인 목록 조회 응답 */
+export interface Plugin {
+  pluginId: string;
+  name: string;
+  description: string;
+  iconUrl: string;
+  authType: AuthType;
+  status: PluginStatus;
+}
+
+/** 연동 범위 타입 */
+export type ScopeType = 'WORKSPACE' | 'USER';
+
+/** 연동 상태 */
+export type ConnectionStatus = 'ACTIVE' | 'REVOKED';
+
+/** Connection 목록 조회 응답 */
+export interface Connection {
+  id: number;
+  pluginId: string;
+  externalId: string;
+  externalName: string;
+  scopeType: ScopeType;
+  status: ConnectionStatus;
+  createdAt: string;
+}
+
+// --- Form Types ---
 
 export type ControlType = 'INPUT_TEXT' | 'DROP_DOWN' | 'CHECKBOX' | 'RADIO_BUTTON';
 

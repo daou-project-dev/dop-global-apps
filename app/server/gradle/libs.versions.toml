@@ -9,18 +9,36 @@ postgresql = "42.7.4"
 hypersistence-utils = "3.9.0"
 slack-bolt = "1.44.2"
 jasypt = "3.0.5"
+flyway = "11.14.1"
 
 [libraries]
+# Spring Boot
+spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+
+# Lombok
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+
+# PF4J
 pf4j = { module = "org.pf4j:pf4j", version.ref = "pf4j" }
 pf4j-spring = { module = "org.pf4j:pf4j-spring", version.ref = "pf4j-spring" }
+
+# Database
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+
+# Hypersistence
 hypersistence-utils = { module = "io.hypersistence:hypersistence-utils-hibernate-70", version.ref = "hypersistence-utils" }
+
+# Slack
 slack-bolt = { module = "com.slack.api:bolt", version.ref = "slack-bolt" }
 slack-bolt-servlet = { module = "com.slack.api:bolt-servlet", version.ref = "slack-bolt" }
 slack-api-client = { module = "com.slack.api:slack-api-client", version.ref = "slack-bolt" }
+
+# Jasypt
 jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-boot-starter", version.ref = "jasypt" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }

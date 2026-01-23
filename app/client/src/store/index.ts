@@ -9,17 +9,7 @@ export {
 } from './plugin';
 
 // Datasource
-export {
-  currentDatasourceAtom,
-  switchPluginAtom,
-  updateFormValueAtom,
-} from './datasource';
+export { currentDatasourceAtom, switchPluginAtom, updateFormValueAtom } from './datasource';
 
 // Types
-export type {
-  ControlType,
-  ControlProps,
-  DatasourceConfig,
-  Datasource,
-  PluginForm,
-} from './types';
+export type { ControlType, ControlProps, DatasourceConfig, Datasource, PluginForm } from './types';

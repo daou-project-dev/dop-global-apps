@@ -13,10 +13,7 @@ export interface ApiError {
   status: number;
 }
 
-async function request<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = `${BASE_URL}${endpoint}`;
 
   const config: RequestInit = {

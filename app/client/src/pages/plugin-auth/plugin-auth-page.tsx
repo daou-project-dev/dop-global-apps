@@ -1,37 +1,62 @@
-import { useAtom, useSetAtom } from 'jotai';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
+import { useAtom } from 'jotai';
+import { useState, useEffect } from 'react';
 
-import {
-  currentPluginAtom,
-  currentDatasourceAtom,
-  switchPluginAtom,
-  S3_FORM,
-  GOOGLE_SHEETS_FORM,
-  GOOGLE_CALENDAR_FORM,
-  SLACK_FORM,
-  SLACK_TEST_FORM,
-} from '../../store';
 import { FormRenderer } from '../../components';
-import { TestFormRenderer } from './components/test-form-renderer';
+import { currentPluginAtom, currentDatasourceAtom } from '../../store';
 
+import { pluginQueries } from './api';
 import styles from './plugin-auth-page.module.css';
 
+import type { Plugin } from '../../store/types';
+
+const SLACK_PLUGIN_ID = 'slack';
+
 export function PluginAuthPage() {
-  const [currentPlugin] = useAtom(currentPluginAtom);
+  const [currentPlugin, setCurrentPlugin] = useAtom(currentPluginAtom);
   const [currentDatasource] = useAtom(currentDatasourceAtom);
-  const switchPlugin = useSetAtom(switchPluginAtom);
+
+  // 플러그인 목록 조회
+  const {
+    data: plugins = [],
+    isLoading: pluginsLoading,
+    error: pluginsError,
+  } = useQuery(pluginQueries.list());
+
+  // 선택된 플러그인의 폼 데이터 fetch
+  const [selectedPluginId, setSelectedPluginId] = useState<string | null>(null);
+  const {
+    data: formData,
+    isLoading,
+    error,
+  } = useQuery({
+    ...pluginQueries.form(selectedPluginId!),
+    enabled: !!selectedPluginId,
+  });
+
+  const handlePluginSelect = (plugin: Plugin) => {
+    setSelectedPluginId(plugin.pluginId);
+  };
+
+  // 서버에서 폼 데이터 fetch 완료 시 currentPlugin 업데이트
+  useEffect(() => {
+    if (formData?.formConfig) {
+      setCurrentPlugin(formData.formConfig);
+    }
+  }, [formData?.formConfig, setCurrentPlugin]);
 
   const handleSubmit = () => {
     // Slack OAuth: 팝업으로 인증 진행
-    if (currentPlugin.pluginId === SLACK_FORM.pluginId && currentPlugin.authType === 'oAuth2') {
+    if (currentPlugin.pluginId === SLACK_PLUGIN_ID && currentPlugin.authType === 'oAuth2') {
       const width = 600;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
 
       window.open(
-        `${import.meta.env.VITE_API_BASE_URL}/slack/install`,
-        'slack-oauth',
+        `${import.meta.env.VITE_API_BASE_URL}/oauth/${currentPlugin.pluginId}/install`,
+        'plugin-oauth',
         `width=${width},height=${height},left=${left},top=${top}`
       );
       return;
@@ -45,57 +70,46 @@ export function PluginAuthPage() {
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <h3 className={styles.sidebarTitle}>Plugins</h3>
-        <button
-          className={clsx(styles.pluginButton, {
-            [styles.pluginButtonActive]:
-              currentPlugin.pluginId === S3_FORM.pluginId,
-          })}
-          onClick={() => switchPlugin(S3_FORM)}
-        >
-          Amazon S3
-        </button>
-        <button
-          className={clsx(styles.pluginButton, {
-            [styles.pluginButtonActive]:
-              currentPlugin.pluginId === GOOGLE_SHEETS_FORM.pluginId,
-          })}
-          onClick={() => switchPlugin(GOOGLE_SHEETS_FORM)}
-        >
-          Google Sheets (OAuth)
-        </button>
-        <button
-          className={clsx(styles.pluginButton, {
-            [styles.pluginButtonActive]:
-              currentPlugin.pluginId === GOOGLE_CALENDAR_FORM.pluginId,
-          })}
-          onClick={() => switchPlugin(GOOGLE_CALENDAR_FORM)}
-        >
-          Google Calendar
-        </button>
-        <button
-          className={clsx(styles.pluginButton, {
-            [styles.pluginButtonActive]:
-              currentPlugin.pluginId === SLACK_FORM.pluginId,
-          })}
-          onClick={() => switchPlugin(SLACK_FORM)}
-        >
-          Slack
-        </button>
+        {pluginsLoading && <p className={styles.loading}>로딩 중...</p>}
+        {pluginsError && (
+          <p className={styles.error}>
+            {pluginsError instanceof Error ? pluginsError.message : '플러그인 목록 조회 실패'}
+          </p>
+        )}
+        {plugins.map((plugin) => (
+          <button
+            key={plugin.pluginId}
+            className={clsx(styles.pluginButton, {
+              [styles.pluginButtonActive]: currentPlugin.pluginId === plugin.pluginId,
+            })}
+            onClick={() => handlePluginSelect(plugin)}
+          >
+            {plugin.iconUrl && (
+              <img src={plugin.iconUrl} alt={plugin.name} className={styles.pluginIcon} />
+            )}
+            {plugin.name}
+          </button>
+        ))}
       </div>
 
       <div className={styles.mainContent}>
         <h1 className={styles.header}>Configuring: {currentPlugin.pluginName}</h1>
 
-        <div className={styles.formWrapper}>
-          <FormRenderer onSubmit={handleSubmit} />
-        </div>
+        {isLoading && <p>Loading plugin configuration...</p>}
+        {error && (
+          <p style={{ color: 'red' }}>
+            Error: {error instanceof Error ? error.message : '폼 설정 조회 실패'}
+          </p>
+        )}
 
-        <pre className={styles.jsonPreview}>
-          {JSON.stringify(currentDatasource, null, 2)}
-        </pre>
+        {!isLoading && (
+          <>
+            <div className={styles.formWrapper}>
+              <FormRenderer onSubmit={handleSubmit} />
+            </div>
 
-        {currentPlugin.pluginId === SLACK_FORM.pluginId && (
-          <TestFormRenderer testForm={SLACK_TEST_FORM} />
+            <pre className={styles.jsonPreview}>{JSON.stringify(currentDatasource, null, 2)}</pre>
+          </>
         )}
       </div>
     </div>

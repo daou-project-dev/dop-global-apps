@@ -1,11 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
 
-import type { PluginTestForm, TestTab } from '../../../../../store/types';
 import { slackApi } from '../../../api';
+
+import type { PluginTestForm, TestTab } from '../../../../../store/types';
 import type { InputsMap, ResultsMap, TestResult } from '../types';
 
 interface UseTestFormOptions {
   testForm: PluginTestForm;
+  externalId: string;
 }
 
 interface UseTestFormReturn {
@@ -20,12 +22,7 @@ interface UseTestFormReturn {
   validateInputs: () => string | null;
 }
 
-/** bodyTemplate의 {{name}} 플레이스홀더를 입력값으로 치환 */
-function replaceTemplate(template: string, values: Record<string, string>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => values[key] ?? '');
-}
-
-export function useTestForm({ testForm }: UseTestFormOptions): UseTestFormReturn {
+export function useTestForm({ testForm, externalId }: UseTestFormOptions): UseTestFormReturn {
   const [activeTabId, setActiveTabId] = useState(testForm.tabs[0]?.tabId ?? '');
   const [inputsMap, setInputsMap] = useState<InputsMap>(() => {
     const initial: InputsMap = {};
@@ -88,16 +85,22 @@ export function useTestForm({ testForm }: UseTestFormOptions): UseTestFormReturn
     setIsLoading(true);
 
     try {
-      const { method, uri, bodyTemplate } = activeTab.api;
-      const body = bodyTemplate ? replaceTemplate(bodyTemplate, inputs) : '{}';
-      const teamId = inputs.teamId ?? '';
+      const { uri } = activeTab.api;
+
+      // inputs를 params로 변환 (빈 문자열 제외)
+      const params: Record<string, unknown> = {
+        externalId,
+      };
+      Object.entries(inputs).forEach(([key, value]) => {
+        if (value !== '') {
+          params[key] = value;
+        }
+      });
 
       const response = await slackApi.execute({
-        plugin: 'slack',
-        method,
-        uri,
-        teamId,
-        body,
+        pluginId: testForm.pluginId,
+        action: uri,
+        params,
       });
 
       const { success, body: responseBody, error } = response.data;
@@ -131,7 +134,7 @@ export function useTestForm({ testForm }: UseTestFormOptions): UseTestFormReturn
     } finally {
       setIsLoading(false);
     }
-  }, [activeTab, activeTabId, inputs, validateInputs]);
+  }, [activeTab, activeTabId, inputs, validateInputs, externalId, testForm.pluginId]);
 
   return {
     activeTab,

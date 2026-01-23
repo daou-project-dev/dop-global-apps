@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 
-import type { TestTab } from '../../../../../../store/types';
-
 import styles from './test-tab-list.module.css';
+
+import type { TestTab } from '../../../../../../store/types';
 
 interface TestTabListProps {
   tabs: TestTab[];

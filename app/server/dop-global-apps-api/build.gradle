@@ -1,0 +1,38 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+bootRun {
+    jvmArgs = [
+        "-Djavax.net.ssl.trustStore=${projectDir}/src/main/resources/truststore.jks",
+        "-Djavax.net.ssl.trustStorePassword=changeit"
+    ]
+}
+
+dependencies {
+    // Core (Repository Port, domain, plugin-sdk 포함)
+    implementation project(':dop-global-apps-core')
+
+    // Infrastructure (Repository 구현체 - 런타임 classpath용)
+    runtimeOnly project(':dop-global-apps-infrastructure')
+
+    // Spring
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // PF4J
+    implementation(libs.pf4j.spring)
+    implementation(libs.slack.bolt)
+
+    // H2 (로컬 개발)
+    runtimeOnly(libs.h2)
+
+    // PostgreSQL (운영)
+    runtimeOnly(libs.postgresql)
+
+    // 플러그인 런타임 로딩
+    runtimeOnly project(':plugins:slack-plugin')
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

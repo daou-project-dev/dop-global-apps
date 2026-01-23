@@ -1,14 +1,12 @@
 import { apiClient } from '../../../api/client';
 
-export interface SlackExecuteRequest {
-  plugin: 'slack';
-  method: 'GET' | 'POST';
-  uri: string;
-  teamId: string;
-  body: string;
+export interface ExecuteRequest {
+  pluginId: string;
+  action: string;
+  params: Record<string, unknown>;
 }
 
-export interface SlackExecuteResponse {
+export interface ExecuteResponse {
   success: boolean;
   statusCode: number;
   body: string;
@@ -23,24 +21,19 @@ export interface SlackChannel {
 }
 
 export const slackApi = {
-  execute: (request: SlackExecuteRequest) =>
-    apiClient.post<SlackExecuteResponse>('/execute', request),
+  execute: (request: ExecuteRequest) => apiClient.post<ExecuteResponse>('/execute', request),
 
-  getChannels: (teamId: string) =>
+  getChannels: (externalId: string) =>
     slackApi.execute({
-      plugin: 'slack',
-      method: 'GET',
-      uri: 'conversations.list',
-      teamId,
-      body: '{}',
+      pluginId: 'slack',
+      action: 'conversations.list',
+      params: { externalId },
     }),
 
-  postMessage: (teamId: string, channel: string, text: string) =>
+  postMessage: (externalId: string, channel: string, text: string) =>
     slackApi.execute({
-      plugin: 'slack',
-      method: 'POST',
-      uri: 'chat.postMessage',
-      teamId,
-      body: JSON.stringify({ channel, text }),
+      pluginId: 'slack',
+      action: 'chat.postMessage',
+      params: { externalId, channel, text },
     }),
 };

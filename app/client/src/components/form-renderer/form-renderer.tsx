@@ -1,15 +1,12 @@
-import { useAtom } from 'jotai';
 import clsx from 'clsx';
+import { useAtom } from 'jotai';
 
 import { currentPluginAtom } from '../../store';
-import type { ControlProps, ControlType } from '../../store';
-import {
-  InputTextControl,
-  DropDownControl,
-  RadioButtonControl,
-} from '../controls';
+import { InputTextControl, DropDownControl, RadioButtonControl } from '../controls';
 
 import styles from './form-renderer.module.css';
+
+import type { ControlProps, ControlType } from '../../store';
 
 interface FormRendererProps {
   onSubmit?: () => void;
@@ -32,8 +29,7 @@ export function FormRenderer({ onSubmit, isSubmitting = false }: FormRendererPro
     <div>
       {currentPlugin.formConfig.map((control) => {
         const Component = ControlFactory[control.controlType];
-        if (!Component)
-          return <div key={control.configProperty}>Unknown Control</div>;
+        if (!Component) return <div key={control.configProperty}>Unknown Control</div>;
 
         return <Component key={control.configProperty} {...control} />;
       })}
@@ -44,11 +40,7 @@ export function FormRenderer({ onSubmit, isSubmitting = false }: FormRendererPro
           onClick={onSubmit}
           disabled={isSubmitting}
         >
-          {isSubmitting
-            ? '저장 중...'
-            : isOAuth
-              ? 'Save and Authorize'
-              : 'Save'}
+          {isSubmitting ? '저장 중...' : isOAuth ? 'Save and Authorize' : 'Save'}
         </button>
       </div>
     </div>

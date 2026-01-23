@@ -1,8 +1,9 @@
 import { Link, useRouterState } from '@tanstack/react-router';
 import clsx from 'clsx';
 
-import type { GnbProps } from './types';
 import styles from './gnb.module.css';
+
+import type { GnbProps } from './types';
 
 const NAV_ITEMS = [
   { path: '/', label: '플러그인 인증' },
@@ -36,9 +37,7 @@ export function Gnb({ isExpanded, onToggle }: GnbProps) {
               })}
               title={item.label}
             >
-              <span className={styles.icon}>
-                {item.path === '/' ? '🔐' : '📋'}
-              </span>
+              <span className={styles.icon}>{item.path === '/' ? '🔐' : '📋'}</span>
               {isExpanded && <span className={styles.label}>{item.label}</span>}
             </Link>
           </li>

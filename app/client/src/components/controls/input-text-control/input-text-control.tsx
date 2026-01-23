@@ -3,8 +3,9 @@ import _ from 'lodash';
 
 import { currentDatasourceAtom, updateFormValueAtom } from '../../../store';
 
-import type { InputTextControlProps } from './types';
 import styles from './input-text-control.module.css';
+
+import type { InputTextControlProps } from './types';
 
 export function InputTextControl(props: InputTextControlProps) {
   const { configProperty, label, dataType, hidden } = props;

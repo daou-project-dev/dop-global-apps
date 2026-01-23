@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import { Outlet } from '@tanstack/react-router';
+import { useState } from 'react';
 
 import { Gnb } from '../gnb';
+
 import styles from './layout.module.css';
 
 export function Layout() {
