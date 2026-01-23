@@ -26,7 +26,8 @@ server/
 │   └── crypto/                     # 암호화
 └── plugins/
     ├── plugin-sdk/                 # 플러그인 SDK
-    └── slack-plugin/               # Slack 연동 플러그인
+    ├── slack-plugin/               # Slack 연동 플러그인
+    └── google-calendar-plugin/     # Google Calendar 플러그인
 ```
 
 ## 의존성 구조
@@ -132,6 +133,10 @@ docker compose logs -f postgres
 - [백엔드 레이어](docs/DESIGN/BACKEND_LAYER.md)
 - [플러그인 아키텍처](docs/DESIGN/PLUGIN.md)
 - [구현 로드맵](docs/DESIGN/IMPLEMENTATION_ROADMAP.md)
+
+## 플러그인 개발
+
+신규 플러그인 개발 시 [플러그인 개발 가이드](plugins/README.md) 참고.
 
 ## 레거시 문서
 
