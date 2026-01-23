@@ -1,15 +1,12 @@
-import { useAtom } from 'jotai';
 import clsx from 'clsx';
+import { useAtom } from 'jotai';
 
 import { currentPluginAtom } from '../../store';
-import type { ControlProps, ControlType } from '../../store';
-import {
-  InputTextControl,
-  DropDownControl,
-  RadioButtonControl,
-} from '../controls';
+import { InputTextControl, DropDownControl, RadioButtonControl } from '../controls';
 
 import styles from './form-renderer.module.css';
+
+import type { ControlProps, ControlType } from '../../store';
 
 interface FormRendererProps {
   onSubmit?: () => void;
@@ -27,32 +24,23 @@ export function FormRenderer({ onSubmit, isSubmitting = false }: FormRendererPro
   const [currentPlugin] = useAtom(currentPluginAtom);
 
   const isOAuth = currentPlugin.authType === 'oAuth2';
-  const isServiceAccount = currentPlugin.authType === 'serviceAccount';
-
-  const getButtonText = () => {
-    if (isSubmitting) return '처리 중...';
-    if (isOAuth) return 'Save and Authorize';
-    if (isServiceAccount) return '인증';
-    return 'Save';
-  };
 
   return (
     <div>
       {currentPlugin.formConfig.map((control) => {
         const Component = ControlFactory[control.controlType];
-        if (!Component)
-          return <div key={control.configProperty}>Unknown Control</div>;
+        if (!Component) return <div key={control.configProperty}>Unknown Control</div>;
 
         return <Component key={control.configProperty} {...control} />;
       })}
 
       <div className={styles.formFooter}>
         <button
-          className={clsx(styles.button, (isOAuth || isServiceAccount) && styles.oauthButton)}
+          className={clsx(styles.button, isOAuth && styles.oauthButton)}
           onClick={onSubmit}
           disabled={isSubmitting}
         >
-          {getButtonText()}
+          {isSubmitting ? '저장 중...' : isOAuth ? 'Save and Authorize' : 'Save'}
         </button>
       </div>
     </div>

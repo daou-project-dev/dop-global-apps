@@ -1,5 +1,1 @@
-export {
-  currentDatasourceAtom,
-  switchPluginAtom,
-  updateFormValueAtom,
-} from './datasource.atom';
+export { currentDatasourceAtom, switchPluginAtom, updateFormValueAtom } from './datasource.atom';

@@ -1,9 +1,10 @@
-import { atom } from 'jotai';
 import { produce } from 'immer';
+import { atom } from 'jotai';
 import _ from 'lodash';
 
-import type { Datasource, PluginForm } from '../types';
 import { currentPluginAtom } from '../plugin';
+
+import type { Datasource, PluginForm } from '../types';
 
 // --- Initial State ---
 
@@ -20,19 +21,16 @@ export const currentDatasourceAtom = atom<Datasource>(INITIAL_DATASOURCE);
 
 // --- Actions ---
 
-export const switchPluginAtom = atom(
-  null,
-  (_get, set, plugin: PluginForm) => {
-    set(currentPluginAtom, plugin);
-    set(currentDatasourceAtom, {
-      ...INITIAL_DATASOURCE,
-      pluginId: plugin.pluginId,
-      datasourceConfiguration: {
-        authenticationType: plugin.authType,
-      },
-    });
-  }
-);
+export const switchPluginAtom = atom(null, (_get, set, plugin: PluginForm) => {
+  set(currentPluginAtom, plugin);
+  set(currentDatasourceAtom, {
+    ...INITIAL_DATASOURCE,
+    pluginId: plugin.pluginId,
+    datasourceConfiguration: {
+      authenticationType: plugin.authType,
+    },
+  });
+});
 
 export const updateFormValueAtom = atom(
   null,
