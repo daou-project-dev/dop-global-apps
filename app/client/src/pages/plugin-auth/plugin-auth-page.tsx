@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { useAtom } from 'jotai';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FormRenderer } from '../../components';
 import { currentPluginAtom, currentDatasourceAtom } from '../../store';
@@ -13,6 +13,7 @@ import type { Plugin } from '../../store/types';
 
 const SLACK_PLUGIN_ID = 'slack';
 const GOOGLE_CALENDAR_PLUGIN_ID = 'google-calendar';
+const MS365_CALENDAR_PLUGIN_ID = 'ms365-calendar';
 
 export function PluginAuthPage() {
   const [currentPlugin, setCurrentPlugin] = useAtom(currentPluginAtom);
@@ -27,41 +28,55 @@ export function PluginAuthPage() {
     error: pluginsError,
   } = useQuery(pluginQueries.list());
 
-  // 선택된 플러그인의 폼 데이터 fetch
-  const [selectedPluginId, setSelectedPluginId] = useState<string | null>(null);
+  // 선택된 플러그인의 폼 데이터 fetch (currentPlugin.pluginId 기준)
   const {
     data: formData,
     isLoading,
     error,
   } = useQuery({
-    ...pluginQueries.form(selectedPluginId!),
-    enabled: !!selectedPluginId,
+    ...pluginQueries.form(currentPlugin.pluginId),
+    enabled: !!currentPlugin.pluginId,
   });
 
+  // 플러그인 선택 핸들러 - 기본 정보로 즉시 업데이트
   const handlePluginSelect = (plugin: Plugin) => {
-    setSelectedPluginId(plugin.pluginId);
+    setCurrentPlugin({
+      pluginId: plugin.pluginId,
+      pluginName: plugin.name,
+      authType: 'oAuth2',
+      formConfig: [],
+    });
   };
 
-  // 서버에서 폼 데이터 fetch 완료 시 currentPlugin 업데이트
+  // API 응답 성공 시 상세 정보(formConfig)로 업데이트
+  // pluginId 일치 확인으로 캐시된 이전 데이터가 덮어쓰는 것 방지
   useEffect(() => {
-    if (formData?.formConfig) {
+    if (formData?.formConfig && formData.formConfig.pluginId === currentPlugin.pluginId) {
       setCurrentPlugin(formData.formConfig);
     }
-  }, [formData?.formConfig, setCurrentPlugin]);
+  }, [formData?.formConfig, currentPlugin.pluginId, setCurrentPlugin]);
+
+  const openOAuthPopup = () => {
+    const width = 600;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    window.open(
+      `${import.meta.env.VITE_API_BASE_URL}/oauth/${currentPlugin.pluginId}/install`,
+      'plugin-oauth',
+      `width=${width},height=${height},left=${left},top=${top}`
+    );
+  };
 
   const handleSubmit = async () => {
-    // Slack OAuth: 팝업으로 인증 진행
-    if (currentPlugin.pluginId === SLACK_PLUGIN_ID && currentPlugin.authType === 'oAuth2') {
-      const width = 600;
-      const height = 700;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
+    const isOAuth2Plugin =
+      currentPlugin.authType === 'oAuth2' &&
+      (currentPlugin.pluginId === SLACK_PLUGIN_ID ||
+        currentPlugin.pluginId === MS365_CALENDAR_PLUGIN_ID);
 
-      window.open(
-        `${import.meta.env.VITE_API_BASE_URL}/oauth/${currentPlugin.pluginId}/install`,
-        'plugin-oauth',
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
+    if (isOAuth2Plugin) {
+      openOAuthPopup();
       return;
     }
 
@@ -116,22 +131,35 @@ export function PluginAuthPage() {
       </div>
 
       <div className={styles.mainContent}>
-        <h1 className={styles.header}>Configuring: {currentPlugin.pluginName}</h1>
-
-        {isLoading && <p>Loading plugin configuration...</p>}
-        {error && (
-          <p style={{ color: 'red' }}>
-            Error: {error instanceof Error ? error.message : '폼 설정 조회 실패'}
-          </p>
-        )}
-
-        {!isLoading && (
+        {!currentPlugin.pluginId ? (
+          <div className={styles.emptyState}>
+            <p>왼쪽 목록에서 플러그인을 선택하세요.</p>
+          </div>
+        ) : (
           <>
             <div className={styles.formWrapper}>
               <FormRenderer onSubmit={handleSubmit} isSubmitting={isSubmitting} />
             </div>
+            <h1 className={styles.header}>Configuring: {currentPlugin.pluginName}</h1>
 
-            <pre className={styles.jsonPreview}>{JSON.stringify(currentDatasource, null, 2)}</pre>
+            {isLoading && <p>Loading plugin configuration...</p>}
+            {error && (
+              <p style={{ color: 'red' }}>
+                Error: {error instanceof Error ? error.message : '폼 설정 조회 실패'}
+              </p>
+            )}
+
+            {!isLoading && (
+              <>
+                <div className={styles.formWrapper}>
+                  <FormRenderer onSubmit={handleSubmit} />
+                </div>
+
+                <pre className={styles.jsonPreview}>
+                  {JSON.stringify(currentDatasource, null, 2)}
+                </pre>
+              </>
+            )}
           </>
         )}
       </div>

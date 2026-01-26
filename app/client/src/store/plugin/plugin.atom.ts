@@ -80,4 +80,11 @@ export const SLACK_FORM: PluginForm = {
 
 // --- Atoms ---
 
-export const currentPluginAtom = atom<PluginForm>(S3_FORM);
+const EMPTY_PLUGIN: PluginForm = {
+  pluginId: '',
+  pluginName: '',
+  authType: 'oAuth2',
+  formConfig: [],
+};
+
+export const currentPluginAtom = atom<PluginForm>(EMPTY_PLUGIN);
