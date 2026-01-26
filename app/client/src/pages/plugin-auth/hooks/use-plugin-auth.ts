@@ -49,7 +49,7 @@ const authHandlers: Record<string, AuthHandler> = {
 
 const getAuthHandler = (authType: string | undefined): AuthHandler | null => {
   if (!authType) return null;
-  const normalized = authType.toLowerCase().replace('-', '_');
+  const normalized = authType.toLowerCase().replace(/-/g, '_');
   return authHandlers[normalized] ?? null;
 };
 
