@@ -10,6 +10,25 @@
         "method": "POST",
         "uri": "calendar.list"
       }
+    },
+    {
+      "tabId": "events.list",
+      "tabName": "일정 목록 조회",
+      "description": "지정한 캘린더의 일정 목록을 조회합니다.",
+      "controls": [
+        {
+          "controlType": "INPUT_TEXT",
+          "label": "Calendar ID",
+          "name": "calendarId",
+          "placeholder": "primary",
+          "required": true,
+          "initialValue": "primary"
+        }
+      ],
+      "api": {
+        "method": "POST",
+        "uri": "events.list"
+      }
     }
   ]
 }
