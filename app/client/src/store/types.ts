@@ -48,7 +48,7 @@ export interface ControlProps {
 }
 
 export interface DatasourceConfig {
-  authenticationType?: 'oAuth2' | 'base' | 'form';
+  authenticationType?: PluginForm | string;
   [key: string]: any;
 }
 
