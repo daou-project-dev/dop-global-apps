@@ -30,7 +30,7 @@ const authHandlers: Record<string, AuthHandler> = {
     );
   },
 
-  service_account: async ({ pluginId, setIsSubmitting, onSuccess, onError }) => {
+  serviceaccount: async ({ pluginId, setIsSubmitting, onSuccess, onError }) => {
     setIsSubmitting(true);
     try {
       await connectionApi.createConnection({
