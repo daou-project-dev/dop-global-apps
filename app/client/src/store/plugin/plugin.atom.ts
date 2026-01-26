@@ -83,7 +83,7 @@ export const SLACK_FORM: PluginForm = {
 const EMPTY_PLUGIN: PluginForm = {
   pluginId: '',
   pluginName: '',
-  authType: 'oAuth2',
+  authType: '',
   formConfig: [],
 };
 
