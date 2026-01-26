@@ -31,28 +31,22 @@ brew install google-cloud-sdk
 curl https://sdk.cloud.google.com | bash
 ```
 
-### 1-2. ADC 로그인
+### 1-2. JSON 키 발급 (ADC 로그인)
+
+scope 포함하여 로그인, `~/.config/gcloud/application_default_credentials.json`에 저장됨.
 
 ```bash
 gcloud auth application-default login \
   --scopes="https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/cloud-platform"
 ```
 
-### 1-3. 프로젝트 설정
+### 1-3. Quota 프로젝트 설정
 
 ```bash
-# 프로젝트 확인
-gcloud config get-value project
-
-# quota 프로젝트 설정 (필요 시)
-gcloud auth application-default set-quota-project YOUR_PROJECT_ID
+gcloud auth application-default set-quota-project ba-external-globalapp-dev-kr
 ```
 
-### 1-4. JSON 키 위치
-
-```
-~/.config/gcloud/application_default_credentials.json
-```
+> 프로젝트 확인: `gcloud config get-value project`
 
 ---
 

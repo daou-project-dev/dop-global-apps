@@ -176,6 +176,36 @@ public class ConnectionService implements CredentialProvider {
         return saveOAuthToken(tokenInfo, null, null, ScopeType.WORKSPACE);
     }
 
+    /**
+     * 간단한 연동 생성 (Service Account, API Key 등 credential 없이)
+     * @return 저장된 연동 ID
+     */
+    @Transactional
+    public Long createSimpleConnection(String pluginId, String externalId, String externalName) {
+        Optional<PluginConnection> existing = connectionRepository
+                .findByPluginIdAndExternalId(pluginId, externalId);
+
+        if (existing.isPresent()) {
+            PluginConnection connection = existing.get();
+            connection.activate();
+            connectionRepository.save(connection);
+            log.info("Activated existing connection: plugin={}, externalId={}", pluginId, externalId);
+            return connection.getId();
+        }
+
+        PluginConnection connection = PluginConnection.builder()
+                .pluginId(pluginId)
+                .scopeType(com.daou.dop.global.apps.domain.enums.ScopeType.USER)
+                .externalId(externalId)
+                .externalName(externalName)
+                .status(ConnectionStatus.ACTIVE)
+                .build();
+
+        connection = connectionRepository.save(connection);
+        log.info("Created simple connection: plugin={}, externalId={}", pluginId, externalId);
+        return connection.getId();
+    }
+
     // ========== 인증 정보 관리 ==========
 
     private void createCredential(Long connectionId, OAuthTokenInfo tokenInfo) {
