@@ -2,7 +2,6 @@ import { createRouter, createRootRoute, createRoute } from '@tanstack/react-rout
 
 import { Layout } from '../components/layout';
 import { DatasourcesPage } from '../pages/datasources';
-import { MicrosoftTestPage } from '../pages/microsoft-test';
 import { PluginAuthPage } from '../pages/plugin-auth';
 
 const rootRoute = createRootRoute({
@@ -21,13 +20,7 @@ const datasourcesRoute = createRoute({
   component: DatasourcesPage,
 });
 
-const microsoftTestRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/microsoft-test',
-  component: MicrosoftTestPage,
-});
-
-const routeTree = rootRoute.addChildren([pluginAuthRoute, datasourcesRoute, microsoftTestRoute]);
+const routeTree = rootRoute.addChildren([pluginAuthRoute, datasourcesRoute]);
 
 export const router = createRouter({ routeTree });
 
