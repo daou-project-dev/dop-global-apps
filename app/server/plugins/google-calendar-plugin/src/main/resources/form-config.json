@@ -1,0 +1,6 @@
+{
+  "pluginId": "google-calendar",
+  "pluginName": "Google Calendar",
+  "authType": "serviceAccount",
+  "formConfig": []
+}
