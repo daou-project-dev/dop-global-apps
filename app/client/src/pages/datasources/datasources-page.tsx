@@ -47,9 +47,6 @@ export function DatasourcesPage() {
     return plugins.find((p) => p.pluginId === connection.pluginId);
   };
 
-  console.log(formData);
-  console.log(selectedConnection);
-
   return (
     <div className={styles.container}>
       <div className={styles.sidebar}>
