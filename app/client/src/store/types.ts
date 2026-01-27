@@ -1,7 +1,7 @@
 // --- Plugin Types ---
 
 /** 인증 타입 */
-export type AuthType = 'OAUTH2' | 'API_KEY' | 'BASIC';
+export type AuthType = 'OAUTH2' | 'SERVICE_ACCOUNT' | 'API_KEY' | 'BASIC';
 
 /** 플러그인 상태 */
 export type PluginStatus = 'ACTIVE' | 'INACTIVE';
@@ -48,7 +48,7 @@ export interface ControlProps {
 }
 
 export interface DatasourceConfig {
-  authenticationType?: 'oAuth2' | 'base' | 'form';
+  authenticationType?: PluginForm | string;
   [key: string]: any;
 }
 
@@ -62,7 +62,7 @@ export interface Datasource {
 export interface PluginForm {
   pluginId: string;
   pluginName: string;
-  authType: 'oAuth2' | 'form' | 'serviceAccount';
+  authType: AuthType | string; // AuthType 또는 백엔드 응답값
   formConfig: ControlProps[]; // The "form.json"
 }
 

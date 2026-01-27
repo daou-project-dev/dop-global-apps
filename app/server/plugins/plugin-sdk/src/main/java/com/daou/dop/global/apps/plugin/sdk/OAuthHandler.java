@@ -66,4 +66,14 @@ public interface OAuthHandler extends ExtensionPoint {
     default void revokeToken(PluginConfig config, String accessToken) throws OAuthException {
         // 기본: 아무것도 안함
     }
+
+    /**
+     * PKCE 필요 여부
+     * Microsoft 등 PKCE 필수 OAuth 제공자는 true 반환
+     *
+     * @return PKCE 필요 여부 (기본: false)
+     */
+    default boolean requiresPkce() {
+        return false;
+    }
 }
