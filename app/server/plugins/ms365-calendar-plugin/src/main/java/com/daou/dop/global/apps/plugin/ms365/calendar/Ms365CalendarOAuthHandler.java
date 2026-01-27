@@ -247,6 +247,11 @@ public class Ms365CalendarOAuthHandler implements OAuthHandler {
         log.info("Microsoft does not support programmatic token revocation. Token will expire naturally.");
     }
 
+    @Override
+    public boolean requiresPkce() {
+        return true;
+    }
+
     private UserProfile fetchUserProfile(String accessToken) throws IOException, OAuthException {
         Request request = new Request.Builder()
                 .url(GRAPH_API_BASE_URL + "/me")

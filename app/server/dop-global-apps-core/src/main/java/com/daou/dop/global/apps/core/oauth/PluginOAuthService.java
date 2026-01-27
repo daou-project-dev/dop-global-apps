@@ -37,4 +37,12 @@ public interface PluginOAuthService {
      */
     OAuthTokenInfo exchangeCode(String pluginId, PluginConfigInfo config, String code, String redirectUri)
             throws OAuthException;
+
+    /**
+     * PKCE 필요 여부
+     *
+     * @param pluginId 플러그인 ID
+     * @return PKCE 필요 여부
+     */
+    boolean requiresPkce(String pluginId);
 }
