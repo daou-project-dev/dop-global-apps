@@ -9,8 +9,9 @@ import com.daou.dop.global.apps.core.dto.PluginInfo;
  * @param name        플러그인 표시명
  * @param description 플러그인 설명
  * @param iconUrl     아이콘 URL
- * @param authType    인증 방식 (OAUTH2, API_KEY, BASIC 등)
+ * @param authType    인증 방식 (OAUTH2, API_KEY, SERVICE_ACCOUNT)
  * @param active      활성 상태
+ * @param authConfig  인증 설정 정보
  */
 public record PluginResponse(
         String pluginId,
@@ -18,7 +19,8 @@ public record PluginResponse(
         String description,
         String iconUrl,
         String authType,
-        boolean active
+        boolean active,
+        AuthConfig authConfig
 ) {
     /**
      * Core DTO → API DTO 변환
@@ -30,7 +32,8 @@ public record PluginResponse(
                 info.description(),
                 info.iconUrl(),
                 info.authType(),
-                info.active()
+                info.active(),
+                AuthConfig.from(info.authConfig())
         );
     }
 }
