@@ -1,5 +1,7 @@
 package com.daou.dop.global.apps.core.dto;
 
+import lombok.Builder;
+
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import java.util.Map;
  * @param secrets      추가 민감 정보
  * @param metadata     설정 정보
  */
+@Builder
 public record PluginConfigInfo(
         String pluginId,
         String displayName,
@@ -46,52 +49,5 @@ public record PluginConfigInfo(
 
     public String getSecret(String key) {
         return secrets != null ? secrets.get(key) : null;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private String pluginId;
-        private String displayName;
-        private String clientId;
-        private String clientSecret;
-        private Map<String, String> secrets;
-        private Map<String, Object> metadata;
-
-        public Builder pluginId(String pluginId) {
-            this.pluginId = pluginId;
-            return this;
-        }
-
-        public Builder displayName(String displayName) {
-            this.displayName = displayName;
-            return this;
-        }
-
-        public Builder clientId(String clientId) {
-            this.clientId = clientId;
-            return this;
-        }
-
-        public Builder clientSecret(String clientSecret) {
-            this.clientSecret = clientSecret;
-            return this;
-        }
-
-        public Builder secrets(Map<String, String> secrets) {
-            this.secrets = secrets;
-            return this;
-        }
-
-        public Builder metadata(Map<String, Object> metadata) {
-            this.metadata = metadata;
-            return this;
-        }
-
-        public PluginConfigInfo build() {
-            return new PluginConfigInfo(pluginId, displayName, clientId, clientSecret, secrets, metadata);
-        }
     }
 }
