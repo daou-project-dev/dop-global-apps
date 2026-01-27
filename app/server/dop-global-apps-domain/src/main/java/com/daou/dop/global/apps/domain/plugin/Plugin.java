@@ -3,6 +3,9 @@ package com.daou.dop.global.apps.domain.plugin;
 import com.daou.dop.global.apps.domain.enums.AuthType;
 import com.daou.dop.global.apps.domain.enums.PluginStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
@@ -11,6 +14,8 @@ import java.time.Instant;
  *
  * <p>OAuth client credentials 및 플러그인 설정 관리
  */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Entity
 @Table(name = "plugin", indexes = {
         @Index(name = "idx_plugin_plugin_id", columnList = "pluginId", unique = true)
@@ -89,42 +94,6 @@ public class Plugin {
     @Column
     private Instant updatedAt;
 
-    protected Plugin() {
-    }
-
-    private Plugin(Builder builder) {
-        this.pluginId = builder.pluginId;
-        this.name = builder.name;
-        this.description = builder.description;
-        this.authType = builder.authType;
-        this.clientId = builder.clientId;
-        this.clientSecret = builder.clientSecret;
-        this.secrets = builder.secrets;
-        this.metadata = builder.metadata;
-        this.iconUrl = builder.iconUrl;
-        this.status = builder.status != null ? builder.status : PluginStatus.ACTIVE;
-        this.createdAt = Instant.now();
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    // Getters
-    public Long getId() { return id; }
-    public String getPluginId() { return pluginId; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public AuthType getAuthType() { return authType; }
-    public String getClientId() { return clientId; }
-    public String getClientSecret() { return clientSecret; }
-    public String getSecrets() { return secrets; }
-    public String getMetadata() { return metadata; }
-    public String getIconUrl() { return iconUrl; }
-    public PluginStatus getStatus() { return status; }
-    public Instant getCreatedAt() { return createdAt; }
-    public Instant getUpdatedAt() { return updatedAt; }
-
     public boolean isActive() {
         return status == PluginStatus.ACTIVE;
     }
@@ -154,33 +123,5 @@ public class Plugin {
     public void deactivate() {
         this.status = PluginStatus.INACTIVE;
         this.updatedAt = Instant.now();
-    }
-
-    public static class Builder {
-        private String pluginId;
-        private String name;
-        private String description;
-        private AuthType authType;
-        private String clientId;
-        private String clientSecret;
-        private String secrets;
-        private String metadata;
-        private String iconUrl;
-        private PluginStatus status;
-
-        public Builder pluginId(String pluginId) { this.pluginId = pluginId; return this; }
-        public Builder name(String name) { this.name = name; return this; }
-        public Builder description(String description) { this.description = description; return this; }
-        public Builder authType(AuthType authType) { this.authType = authType; return this; }
-        public Builder clientId(String clientId) { this.clientId = clientId; return this; }
-        public Builder clientSecret(String clientSecret) { this.clientSecret = clientSecret; return this; }
-        public Builder secrets(String secrets) { this.secrets = secrets; return this; }
-        public Builder metadata(String metadata) { this.metadata = metadata; return this; }
-        public Builder iconUrl(String iconUrl) { this.iconUrl = iconUrl; return this; }
-        public Builder status(PluginStatus status) { this.status = status; return this; }
-
-        public Plugin build() {
-            return new Plugin(this);
-        }
     }
 }

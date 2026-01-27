@@ -1,5 +1,7 @@
 package com.daou.dop.global.apps.plugin.sdk;
 
+import lombok.Builder;
+
 import java.time.Instant;
 import java.util.Map;
 
@@ -14,6 +16,7 @@ import java.util.Map;
  * @param externalId   외부 시스템 ID (teamId, tenantId 등)
  * @param metadata     추가 정보 (botUserId 등)
  */
+@Builder
 public record CredentialContext(
         String accessToken,
         String refreshToken,
@@ -48,52 +51,5 @@ public record CredentialContext(
      */
     public boolean isApiKey() {
         return apiKey != null && !apiKey.isBlank();
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private String accessToken;
-        private String refreshToken;
-        private String apiKey;
-        private Instant expiresAt;
-        private String externalId;
-        private Map<String, String> metadata;
-
-        public Builder accessToken(String accessToken) {
-            this.accessToken = accessToken;
-            return this;
-        }
-
-        public Builder refreshToken(String refreshToken) {
-            this.refreshToken = refreshToken;
-            return this;
-        }
-
-        public Builder apiKey(String apiKey) {
-            this.apiKey = apiKey;
-            return this;
-        }
-
-        public Builder expiresAt(Instant expiresAt) {
-            this.expiresAt = expiresAt;
-            return this;
-        }
-
-        public Builder externalId(String externalId) {
-            this.externalId = externalId;
-            return this;
-        }
-
-        public Builder metadata(Map<String, String> metadata) {
-            this.metadata = metadata;
-            return this;
-        }
-
-        public CredentialContext build() {
-            return new CredentialContext(accessToken, refreshToken, apiKey, expiresAt, externalId, metadata);
-        }
     }
 }

@@ -1,7 +1,9 @@
 package com.daou.dop.global.apps.core.plugin;
 
+import com.daou.dop.global.apps.core.dto.AuthConfigInfo;
 import com.daou.dop.global.apps.core.dto.PluginConfigInfo;
 import com.daou.dop.global.apps.core.dto.PluginInfo;
+import com.daou.dop.global.apps.domain.enums.AuthType;
 import com.daou.dop.global.apps.core.repository.PluginRepository;
 import com.daou.dop.global.apps.domain.enums.PluginStatus;
 import com.daou.dop.global.apps.domain.plugin.Plugin;
@@ -80,7 +82,20 @@ public class PluginService {
                 .iconUrl(plugin.getIconUrl())
                 .authType(plugin.getAuthType() != null ? plugin.getAuthType().name() : null)
                 .active(plugin.getStatus() == PluginStatus.ACTIVE)
+                .authConfig(buildAuthConfig(plugin.getPluginId(), plugin.getAuthType()))
                 .build();
+    }
+
+    private AuthConfigInfo buildAuthConfig(String pluginId, AuthType authType) {
+        if (authType == null) {
+            return null;
+        }
+
+        return switch (authType) {
+            case OAUTH2 -> AuthConfigInfo.redirect("/oauth/" + pluginId + "/install");
+            case API_KEY -> AuthConfigInfo.submit("/key/" + pluginId + "/credentials");
+            case SERVICE_ACCOUNT -> null; // 미지원
+        };
     }
 
     private PluginConfigInfo toPluginConfigInfo(Plugin plugin) {

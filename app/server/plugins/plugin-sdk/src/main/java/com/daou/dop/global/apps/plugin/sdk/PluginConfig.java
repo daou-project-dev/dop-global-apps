@@ -1,5 +1,7 @@
 package com.daou.dop.global.apps.plugin.sdk;
 
+import lombok.Builder;
+
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import java.util.Map;
  * @param secrets      추가 민감 정보 (signing_secret 등)
  * @param metadata     설정 정보 (scopes, authUrl, tokenUrl 등)
  */
+@Builder
 public record PluginConfig(
         String pluginId,
         String clientId,
@@ -57,46 +60,5 @@ public record PluginConfig(
      */
     public String getSecret(String key) {
         return secrets != null ? secrets.get(key) : null;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private String pluginId;
-        private String clientId;
-        private String clientSecret;
-        private Map<String, String> secrets;
-        private Map<String, Object> metadata;
-
-        public Builder pluginId(String pluginId) {
-            this.pluginId = pluginId;
-            return this;
-        }
-
-        public Builder clientId(String clientId) {
-            this.clientId = clientId;
-            return this;
-        }
-
-        public Builder clientSecret(String clientSecret) {
-            this.clientSecret = clientSecret;
-            return this;
-        }
-
-        public Builder secrets(Map<String, String> secrets) {
-            this.secrets = secrets;
-            return this;
-        }
-
-        public Builder metadata(Map<String, Object> metadata) {
-            this.metadata = metadata;
-            return this;
-        }
-
-        public PluginConfig build() {
-            return new PluginConfig(pluginId, clientId, clientSecret, secrets, metadata);
-        }
     }
 }

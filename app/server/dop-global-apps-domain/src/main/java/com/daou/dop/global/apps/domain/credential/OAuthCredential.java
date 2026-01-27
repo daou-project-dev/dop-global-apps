@@ -1,6 +1,10 @@
 package com.daou.dop.global.apps.domain.credential;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
@@ -10,6 +14,8 @@ import java.time.Instant;
  * <p>PluginConnection과 1:1 관계
  * <p>access_token, refresh_token은 infrastructure에서 암호화 Converter 적용
  */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 @Entity
 @Table(name = "oauth_credential", indexes = {
         @Index(name = "idx_oauth_credential_connection_id", columnList = "connectionId", unique = true)
@@ -56,31 +62,16 @@ public class OAuthCredential {
     @Column
     private Instant updatedAt;
 
-    protected OAuthCredential() {
-    }
-
-    private OAuthCredential(Builder builder) {
-        this.connectionId = builder.connectionId;
-        this.accessToken = builder.accessToken;
-        this.refreshToken = builder.refreshToken;
-        this.scope = builder.scope;
-        this.expiresAt = builder.expiresAt;
+    @Builder
+    private OAuthCredential(Long connectionId, String accessToken, String refreshToken,
+                            String scope, Instant expiresAt) {
+        this.connectionId = connectionId;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.scope = scope;
+        this.expiresAt = expiresAt;
         this.createdAt = Instant.now();
     }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    // Getters
-    public Long getId() { return id; }
-    public Long getConnectionId() { return connectionId; }
-    public String getAccessToken() { return accessToken; }
-    public String getRefreshToken() { return refreshToken; }
-    public String getScope() { return scope; }
-    public Instant getExpiresAt() { return expiresAt; }
-    public Instant getCreatedAt() { return createdAt; }
-    public Instant getUpdatedAt() { return updatedAt; }
 
     /**
      * 토큰 만료 여부 확인
@@ -102,23 +93,5 @@ public class OAuthCredential {
         this.accessToken = accessToken;
         this.expiresAt = expiresAt;
         this.updatedAt = Instant.now();
-    }
-
-    public static class Builder {
-        private Long connectionId;
-        private String accessToken;
-        private String refreshToken;
-        private String scope;
-        private Instant expiresAt;
-
-        public Builder connectionId(Long connectionId) { this.connectionId = connectionId; return this; }
-        public Builder accessToken(String accessToken) { this.accessToken = accessToken; return this; }
-        public Builder refreshToken(String refreshToken) { this.refreshToken = refreshToken; return this; }
-        public Builder scope(String scope) { this.scope = scope; return this; }
-        public Builder expiresAt(Instant expiresAt) { this.expiresAt = expiresAt; return this; }
-
-        public OAuthCredential build() {
-            return new OAuthCredential(this);
-        }
     }
 }
