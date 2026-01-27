@@ -99,13 +99,20 @@ public class MyOAuthHandler implements OAuthHandler {
     }
 
     @Override
+    public boolean requiresPkce() {
+        return false;  // PKCE 필요 시 true (예: Microsoft 365)
+    }
+
+    @Override
     public String buildAuthorizationUrl(PluginConfig config, String state, String redirectUri) {
         // OAuth 인증 URL 생성
+        // PKCE 사용 시: config.getString("code_challenge") 파라미터 추가
     }
 
     @Override
     public TokenInfo exchangeCode(PluginConfig config, String code, String redirectUri) {
         // 인증 코드 → 토큰 교환
+        // PKCE 사용 시: config.getString("code_verifier") 파라미터 추가
     }
 }
 ```

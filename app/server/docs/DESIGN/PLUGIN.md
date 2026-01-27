@@ -229,6 +229,14 @@ public interface OAuthHandler extends ExtensionPoint {
         throws OAuthException {
         // 기본: 아무것도 안함
     }
+
+    /**
+     * PKCE 필요 여부 (선택적 구현)
+     * Microsoft 등 PKCE 필수 OAuth 제공자는 true 반환
+     */
+    default boolean requiresPkce() {
+        return false;
+    }
 }
 ```
 
@@ -372,7 +380,77 @@ sequenceDiagram
     Controller-->>-Client: 200 OK / Redirect
 ```
 
-### 5.3 API 실행 플로우
+### 5.3 PKCE 지원 OAuth 플로우
+
+PKCE(Proof Key for Code Exchange)가 필요한 플러그인(예: Microsoft 365)의 경우:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           Install 단계                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│  1. OAuthHandler.requiresPkce() → true                                  │
+│  2. PkceService.generateAndStoreCodeChallenge(state, ttl)               │
+│     - code_verifier 생성 (64바이트 랜덤)                                  │
+│     - code_challenge 생성 (SHA256 해시)                                  │
+│     - PkceStorage에 state → code_verifier 저장                          │
+│  3. code_challenge를 PluginConfig.metadata에 추가                        │
+│  4. OAuthHandler.buildAuthorizationUrl() 호출                           │
+│     - 플러그인이 code_challenge 파라미터 포함하여 URL 생성                 │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           Callback 단계                                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│  1. OAuthHandler.requiresPkce() → true                                  │
+│  2. PkceService.consumeCodeVerifier(state) → code_verifier 조회/삭제     │
+│  3. code_verifier를 PluginConfig.metadata에 추가                         │
+│  4. OAuthHandler.exchangeCode() 호출                                    │
+│     - 플러그인이 code_verifier 파라미터 포함하여 토큰 요청                  │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**PKCE 지원 플러그인 구현 예시:**
+
+```java
+@Extension
+public class Ms365CalendarOAuthHandler implements OAuthHandler {
+
+    @Override
+    public boolean requiresPkce() {
+        return true;  // PKCE 필수
+    }
+
+    @Override
+    public String buildAuthorizationUrl(PluginConfig config, String state, String redirectUri) {
+        String codeChallenge = config.getString("code_challenge");
+        String codeChallengeMethod = config.getString("code_challenge_method");
+
+        StringBuilder url = new StringBuilder(OAUTH_AUTHORIZE_URL)
+            .append("?client_id=").append(encode(config.clientId()))
+            // ... 기타 파라미터 ...
+            .append("&code_challenge=").append(encode(codeChallenge))
+            .append("&code_challenge_method=").append(encode(codeChallengeMethod));
+
+        return url.toString();
+    }
+
+    @Override
+    public TokenInfo exchangeCode(PluginConfig config, String code, String redirectUri) {
+        String codeVerifier = config.getString("code_verifier");
+
+        FormBody formBody = new FormBody.Builder()
+            .add("client_id", config.clientId())
+            .add("code", code)
+            .add("code_verifier", codeVerifier)  // PKCE 검증
+            // ... 기타 파라미터 ...
+            .build();
+
+        // 토큰 교환 요청
+    }
+}
+```
+
+### 5.4 API 실행 플로우
 
 ```mermaid
 sequenceDiagram
@@ -412,9 +490,90 @@ sequenceDiagram
 
 ---
 
-## 6. 플러그인 구현 예시
+## 6. API 모듈 Facade 레이어
 
-### 6.1 SlackOAuthHandler (개선)
+### 6.1 개요
+
+OAuth 플로우의 비즈니스 로직을 Controller에서 분리하여 Facade 레이어에서 처리.
+
+```
+api/
+├── controller/
+│   └── PluginOAuthController.java     # HTTP 요청/응답 처리만
+└── facade/
+    ├── OAuthInstallFacade.java        # 인터페이스
+    ├── OAuthInstallFacadeImpl.java    # 구현체
+    └── OAuthInstallException.java     # 예외 (HTTP 상태 포함)
+```
+
+### 6.2 역할 분리
+
+| 레이어 | 역할 |
+|--------|------|
+| **Controller** | HTTP 파라미터 추출, redirectUri 생성, 응답 반환 |
+| **Facade** | 플러그인 검증, config 조회, PKCE 처리, state 관리, 토큰 교환 |
+
+### 6.3 Facade 인터페이스
+
+```java
+public interface OAuthInstallFacade {
+    /**
+     * OAuth 설치 시작
+     * @return 인증 URL (리다이렉트 대상)
+     * @throws OAuthInstallException 플러그인 미지원 또는 설정 없음
+     */
+    String startInstall(String pluginId, String redirectUri);
+
+    /**
+     * OAuth 콜백 처리
+     * @return 생성된 connection ID
+     * @throws OAuthInstallException 검증 실패 또는 토큰 교환 실패
+     */
+    Long handleCallback(String pluginId, String code, String state, String redirectUri);
+}
+```
+
+### 6.4 Controller 단순화
+
+```java
+@RestController
+@RequestMapping("/oauth")
+public class PluginOAuthController {
+
+    private final OAuthInstallFacade oAuthInstallFacade;
+
+    @GetMapping("/{plugin}/install")
+    public ResponseEntity<String> startInstall(
+            @PathVariable("plugin") String pluginId,
+            HttpServletRequest request) {
+        try {
+            String redirectUri = buildRedirectUri(request, pluginId);
+            String authorizationUrl = oAuthInstallFacade.startInstall(pluginId, redirectUri);
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", authorizationUrl)
+                    .build();
+        } catch (OAuthInstallException e) {
+            return ResponseEntity.status(e.getStatus()).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{plugin}/callback")
+    public ResponseEntity<String> handleCallback(...) {
+        try {
+            oAuthInstallFacade.handleCallback(pluginId, code, state, redirectUri);
+            return ResponseEntity.ok("Installation successful!");
+        } catch (OAuthInstallException e) {
+            return ResponseEntity.status(e.getStatus()).body(e.getMessage());
+        }
+    }
+}
+```
+
+---
+
+## 7. 플러그인 구현 예시
+
+### 7.1 SlackOAuthHandler (개선)
 
 ```java
 @Extension
@@ -479,7 +638,7 @@ public class SlackOAuthHandler implements OAuthHandler {
 }
 ```
 
-### 6.2 SlackPluginExecutor (개선)
+### 7.2 SlackPluginExecutor (개선)
 
 ```java
 @Extension
@@ -565,9 +724,9 @@ public class SlackPluginExecutor implements PluginExecutor {
 
 ---
 
-## 7. 플러그인 metadata 스키마
+## 8. 플러그인 metadata 스키마
 
-### 7.1 plugin 테이블 metadata 예시
+### 8.1 plugin 테이블 metadata 예시
 
 ```json
 // Slack
@@ -594,7 +753,7 @@ public class SlackPluginExecutor implements PluginExecutor {
 }
 ```
 
-### 7.2 plugin 테이블 secrets 예시
+### 8.2 plugin 테이블 secrets 예시
 
 ```json
 // Slack
@@ -609,7 +768,7 @@ public class SlackPluginExecutor implements PluginExecutor {
 }
 ```
 
-### 7.3 oauth_credential metadata 예시
+### 8.3 oauth_credential metadata 예시
 
 ```json
 // Slack
@@ -628,9 +787,9 @@ public class SlackPluginExecutor implements PluginExecutor {
 
 ---
 
-## 8. plugin-sdk 모듈
+## 9. plugin-sdk 모듈
 
-### 8.1 개요
+### 9.1 개요
 
 플러그인 개발에 필요한 인터페이스와 DTO를 제공하는 독립 모듈
 
@@ -638,7 +797,7 @@ public class SlackPluginExecutor implements PluginExecutor {
 - **목적**: 외부 개발자가 JAR만 의존하여 플러그인 개발 가능
 - **배포**: Maven Central 또는 내부 Nexus
 
-### 8.2 모듈 구조
+### 9.2 모듈 구조
 
 ```
 server/
@@ -664,7 +823,7 @@ server/
     └── google-plugin/              # plugin-sdk 의존
 ```
 
-### 8.3 패키지 구조
+### 9.3 패키지 구조
 
 ```
 com.daou.dop.global.apps.plugin.sdk/
@@ -679,7 +838,7 @@ com.daou.dop.global.apps.plugin.sdk/
 └── TokenInfo.java                  # 플러그인→서버 (토큰)
 ```
 
-### 8.4 의존성 관계
+### 9.4 의존성 관계
 
 ```
                     ┌─────────────────┐
@@ -703,7 +862,7 @@ com.daou.dop.global.apps.plugin.sdk/
         └─────────────────────┘
 ```
 
-### 8.5 Gradle 설정
+### 9.5 Gradle 설정
 
 ```groovy
 // plugins/plugin-sdk/build.gradle
@@ -747,7 +906,7 @@ dependencies {
 }
 ```
 
-### 8.6 외부 개발자 가이드
+### 9.6 외부 개발자 가이드
 
 **1. 의존성 추가**
 
@@ -844,7 +1003,7 @@ plugin.description=My custom plugin
 cp build/libs/my-plugin-1.0.0.jar /path/to/server/plugins/
 ```
 
-### 8.7 core 모듈과의 관계
+### 9.7 core 모듈과의 관계
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -870,9 +1029,9 @@ cp build/libs/my-plugin-1.0.0.jar /path/to/server/plugins/
 
 ---
 
-## 9. 마이그레이션 전략
+## 10. 마이그레이션 전략
 
-### 9.1 단계별 전환
+### 10.1 단계별 전환
 
 1. **Phase 1**: 새 DTO 추가 (기존과 공존)
    - `PluginConfig`, `CredentialContext` 추가
@@ -888,7 +1047,7 @@ cp build/libs/my-plugin-1.0.0.jar /path/to/server/plugins/
 
 4. **Phase 4**: V1 인터페이스 제거
 
-### 9.2 하위 호환성
+### 10.2 하위 호환성
 
 ```java
 // V1 어댑터 (기존 플러그인 지원)
@@ -906,10 +1065,11 @@ public class OAuthHandlerV1Adapter implements OAuthHandlerV2 {
 
 ---
 
-## 10. 변경 이력
+## 11. 변경 이력
 
 | 날짜 | 버전 | 내용 |
 |------|------|------|
 | 2025-01-21 | 0.1 | 초안 작성 |
 | 2025-01-21 | 0.2 | plugin-sdk 모듈 구조 추가, 외부 개발자 가이드 추가 |
 | 2025-01-21 | 0.3 | 데이터 흐름 섹션 Mermaid Sequence Diagram으로 변경 |
+| 2025-01-27 | 0.4 | PKCE 지원 추가 (OAuthHandler.requiresPkce()), API Facade 레이어 설명 추가 |
