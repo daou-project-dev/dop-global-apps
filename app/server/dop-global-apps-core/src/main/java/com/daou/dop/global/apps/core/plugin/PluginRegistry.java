@@ -77,11 +77,14 @@ public class PluginRegistry implements PluginOAuthService {
         } catch (com.daou.dop.global.apps.plugin.sdk.OAuthException e) {
             throw new OAuthException(e.getMessage(), e);
         }
+    }
+
     public boolean requiresPkce(String pluginId) {
         return findOAuthHandler(pluginId)
                 .map(OAuthHandler::requiresPkce)
                 .orElse(false);
     }
+
 
     // ========== 플러그인 리소스 조회 ==========
 
