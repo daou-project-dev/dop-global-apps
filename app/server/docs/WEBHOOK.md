@@ -207,6 +207,96 @@ sequenceDiagram
 
 ---
 
+## 4.1 Jira 웹훅 처리 흐름 (connectionId 포함)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Jira as Jira Cloud
+    participant Controller as WebhookController
+    participant Service as WebhookService
+    participant ConnRepo as ConnectionRepository
+    participant Handler as JiraWebhookHandler
+    participant Dispatcher as WebhookDispatcher
+    participant Subscriber as Subscriber<br/>(HTTP/Internal)
+
+    Note over Jira,Subscriber: POST /webhook/jira/{connectionId}
+
+    Jira->>+Controller: POST /webhook/jira/123<br/>payload + headers
+    Controller->>+Service: handleWebhook("jira", 123, payload, headers)
+
+    Service->>Service: WebhookEventLog 생성 (RECEIVED)
+    Service->>Service: PluginConfig 로드
+
+    Service->>+Handler: verifySignature(config, payload, headers)
+
+    alt webhook_secret 미설정
+        Handler-->>Service: true (검증 스킵)
+    else 서명 검증
+        Handler->>Handler: HMAC-SHA256 검증
+        alt 검증 실패
+            Handler-->>Service: false
+            Service->>Service: EventLog.markFailed()
+            Service-->>Controller: 403 Forbidden
+            Controller-->>Jira: 403
+        end
+        Handler-->>-Service: true
+    end
+
+    Service->>+ConnRepo: findById(123)
+    ConnRepo-->>-Service: PluginConnection
+
+    Service->>+Handler: parseEvent(payload, headers)
+    Handler->>Handler: webhookEvent, issue, user 추출
+    Handler-->>-Service: WebhookEvent
+
+    Service->>Service: event.withConnection(connectionId, companyId)
+
+    Service->>+Dispatcher: dispatch(event)
+    Dispatcher->>Dispatcher: 매칭 구독 조회
+
+    loop 각 구독에 대해
+        alt target_type = HTTP
+            Dispatcher->>Subscriber: POST {targetUrl}<br/>event payload
+            Subscriber-->>Dispatcher: 200 OK
+        else target_type = INTERNAL
+            Dispatcher->>Subscriber: 메서드 호출
+            Subscriber-->>Dispatcher: OK
+        end
+    end
+
+    Dispatcher-->>-Service: dispatch 완료
+
+    Service->>Service: EventLog.markSuccess()
+    Service-->>-Controller: WebhookResult.ok()
+    Controller-->>-Jira: 200 OK
+```
+
+### 4.2 Connection 조회 로직
+
+```mermaid
+flowchart TD
+    A[웹훅 수신] --> B{URL에 connectionId<br/>포함?}
+
+    B -->|Yes| C[connectionId로<br/>DB 조회]
+    C --> D{Connection<br/>존재?}
+    D -->|Yes| G[Connection 사용]
+    D -->|No| E[null 반환<br/>connection 없이 처리]
+
+    B -->|No| F[handler.extractExternalId<br/>페이로드에서 추출]
+    F --> H{externalId<br/>추출 성공?}
+    H -->|Yes| I[pluginId + externalId로<br/>DB 조회]
+    I --> J{Connection<br/>존재?}
+    J -->|Yes| G
+    J -->|No| E
+    H -->|No| E
+
+    G --> K[이벤트 처리 계속]
+    E --> K
+```
+
+---
+
 ## 5. 핵심 인터페이스
 
 ### 5.1 WebhookHandler (plugin-sdk)
@@ -692,6 +782,7 @@ public class WebhookService {
 | 2025-01-23 | 0.1  | 초안 작성                                    |
 | 2025-01-23 | 0.2  | 연동 식별 섹션, 서비스별 웹훅 특성 부록 추가 |
 | 2025-01-27 | 0.3  | MQ 제거, 동기 처리 방식으로 단순화           |
+| 2025-01-28 | 0.4  | Jira 웹훅 처리 시퀀스 다이어그램 추가        |
 
 ---
 
