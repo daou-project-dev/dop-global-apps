@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+dependencies {
+    // Plugin SDK
+    compileOnly project(':plugins:plugin-sdk')
+
+    // PF4J
+    compileOnly(libs.pf4j)
+    annotationProcessor(libs.pf4j)
+
+    // JSON 처리
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+
+    // Lombok
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+
+    // SLF4J
+    compileOnly 'org.slf4j:slf4j-api:2.0.16'
+}
+
+jar {
+    manifest {
+        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.jira.JiraPlugin',
+                   'Plugin-Id': 'jira-plugin',
+                   'Plugin-Version': '0.0.1',
+                   'Plugin-Provider': 'Daou Tech'
+    }
+}

@@ -1,0 +1,52 @@
+{
+  "pluginId": "jira",
+  "tabs": [
+    {
+      "tabId": "myself",
+      "tabName": "내 정보 조회",
+      "description": "현재 인증된 사용자 정보를 조회합니다.",
+      "controls": [],
+      "api": {
+        "method": "GET",
+        "uri": "myself"
+      }
+    },
+    {
+      "tabId": "search",
+      "tabName": "이슈 검색",
+      "description": "JQL로 이슈를 검색합니다.",
+      "controls": [
+        {
+          "controlType": "INPUT_TEXT",
+          "label": "JQL",
+          "name": "jql",
+          "placeholder": "project = TEST ORDER BY created DESC",
+          "required": false,
+          "initialValue": "assignee = currentUser() ORDER BY created DESC"
+        },
+        {
+          "controlType": "INPUT_TEXT",
+          "label": "Max Results",
+          "name": "maxResults",
+          "placeholder": "50",
+          "required": false,
+          "initialValue": "10"
+        }
+      ],
+      "api": {
+        "method": "GET",
+        "uri": "search"
+      }
+    },
+    {
+      "tabId": "projects",
+      "tabName": "프로젝트 목록",
+      "description": "접근 가능한 프로젝트 목록을 조회합니다.",
+      "controls": [],
+      "api": {
+        "method": "GET",
+        "uri": "project"
+      }
+    }
+  ]
+}
