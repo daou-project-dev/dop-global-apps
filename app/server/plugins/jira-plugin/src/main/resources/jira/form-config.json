@@ -1,0 +1,23 @@
+{
+  "pluginId": "jira",
+  "pluginName": "Jira",
+  "authType": "oAuth2",
+  "formConfig": [
+    {
+      "controlType": "INPUT_TEXT",
+      "label": "OAuth Scope",
+      "configProperty": "datasourceConfiguration.authentication.scope",
+      "dataType": "TEXT",
+      "initialValue": "read:jira-user read:jira-work write:jira-work offline_access",
+      "hidden": true
+    },
+    {
+      "controlType": "INPUT_TEXT",
+      "label": "Redirect URI",
+      "configProperty": "datasourceConfiguration.authentication.redirectUri",
+      "dataType": "TEXT",
+      "initialValue": "",
+      "hidden": true
+    }
+  ]
+}
