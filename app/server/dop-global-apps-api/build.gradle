@@ -12,6 +12,7 @@ bootRun {
 dependencies {
     // Core (Repository Port, domain, plugin-sdk 포함)
     implementation project(':dop-global-apps-core')
+    implementation project(':dop-global-apps-domain')
 
     // Infrastructure (Repository 구현체 - 런타임 classpath용)
     runtimeOnly project(':dop-global-apps-infrastructure')
@@ -34,6 +35,7 @@ dependencies {
     // 플러그인 런타임 로딩
     runtimeOnly project(':plugins:slack-plugin')
     runtimeOnly project(':plugins:google-calendar-plugin')
+    runtimeOnly project(':plugins:jira-plugin')
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
