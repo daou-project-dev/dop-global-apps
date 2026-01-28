@@ -3,6 +3,7 @@ import { createRouter, createRootRoute, createRoute } from '@tanstack/react-rout
 import { Layout } from '../components/layout';
 import { DatasourcesPage } from '../pages/datasources';
 import { PluginAuthPage } from '../pages/plugin-auth';
+import { WebhookLogsPage } from '../pages/webhook-logs';
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -20,7 +21,13 @@ const datasourcesRoute = createRoute({
   component: DatasourcesPage,
 });
 
-const routeTree = rootRoute.addChildren([pluginAuthRoute, datasourcesRoute]);
+const webhookLogsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/webhook-logs',
+  component: WebhookLogsPage,
+});
+
+const routeTree = rootRoute.addChildren([pluginAuthRoute, datasourcesRoute, webhookLogsRoute]);
 
 export const router = createRouter({ routeTree });
 

@@ -51,7 +51,7 @@ export function PluginAuthPage() {
 
   const handleSubmit = async () => {
     // Slack OAuth: 팝업으로 인증 진행
-    if (currentPlugin.pluginId === SLACK_PLUGIN_ID && currentPlugin.authType === 'oAuth2') {
+    if (currentPlugin.authType === 'oAuth2') {
       const width = 600;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
