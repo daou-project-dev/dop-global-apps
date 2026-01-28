@@ -32,9 +32,11 @@ export function DatasourcesPage() {
   }, [connections, selectedConnectionId]);
 
   // 선택된 Connection의 플러그인 폼 데이터
+  const currentPluginId = selectedConnection?.pluginId ?? '';
   const { data: formData, isLoading: formLoading } = useQuery({
-    ...pluginQueries.form(selectedConnection?.pluginId ?? ''),
-    enabled: !!selectedConnection?.pluginId,
+    ...pluginQueries.form(currentPluginId),
+    enabled: !!currentPluginId,
+    staleTime: 0, // 항상 fresh 상태로 간주하지 않음
   });
 
   const handleConnectionSelect = (connection: Connection) => {
@@ -91,12 +93,14 @@ export function DatasourcesPage() {
             </p>
 
             {formLoading && <p>테스트 폼 로딩 중...</p>}
-            {formData?.testForm && (
-              <TestFormRenderer
-                testForm={formData.testForm}
-                externalId={selectedConnection.externalId}
-              />
-            )}
+            {!formLoading &&
+              formData?.testForm &&
+              formData.testForm.pluginId === selectedConnection.pluginId && (
+                <TestFormRenderer
+                  testForm={formData.testForm}
+                  externalId={selectedConnection.externalId}
+                />
+              )}
           </>
         ) : (
           <div className={styles.emptyState}>

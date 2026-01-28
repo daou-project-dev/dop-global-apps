@@ -49,4 +49,10 @@ public interface PluginOAuthService {
      */
     OAuthTokenInfo refreshToken(String pluginId, PluginConfigInfo config, String refreshToken)
             throws OAuthException;
+     * PKCE 필요 여부
+     *
+     * @param pluginId 플러그인 ID
+     * @return PKCE 필요 여부
+     */
+    boolean requiresPkce(String pluginId);
 }

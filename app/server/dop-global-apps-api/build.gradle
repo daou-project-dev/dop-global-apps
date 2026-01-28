@@ -36,6 +36,7 @@ dependencies {
     runtimeOnly project(':plugins:slack-plugin')
     runtimeOnly project(':plugins:google-calendar-plugin')
     runtimeOnly project(':plugins:jira-plugin')
+    runtimeOnly project(':plugins:ms365-calendar-plugin')
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

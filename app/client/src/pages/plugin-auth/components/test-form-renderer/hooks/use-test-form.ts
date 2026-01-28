@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 
-import { slackApi } from '../../../api';
+import { executeApi } from '../../../api';
 
 import type { PluginTestForm, TestTab } from '../../../../../store/types';
 import type { InputsMap, ResultsMap, TestResult } from '../types';
@@ -97,7 +97,7 @@ export function useTestForm({ testForm, externalId }: UseTestFormOptions): UseTe
         }
       });
 
-      const response = await slackApi.execute({
+      const response = await executeApi.execute({
         pluginId: testForm.pluginId,
         action: uri,
         params,

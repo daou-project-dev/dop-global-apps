@@ -24,6 +24,18 @@
   min-width: 0;
 }
 
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background-color: #f9f9f9;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  color: #888;
+  font-size: 0.9375rem;
+}
+
 .pluginButton {
   display: flex;
   align-items: center;
@@ -189,5 +201,11 @@
 
   .formWrapper {
     background-color: #2a2a2a;
+  }
+
+  .emptyState {
+    background-color: #1a1a1a;
+    border-color: #444;
+    color: #888;
   }
 }
