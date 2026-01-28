@@ -4,7 +4,11 @@ import com.daou.dop.global.apps.core.credential.CredentialProvider;
 import com.daou.dop.global.apps.core.dto.ConnectionInfo;
 import com.daou.dop.global.apps.core.dto.CredentialInfo;
 import com.daou.dop.global.apps.core.dto.OAuthTokenInfo;
+import com.daou.dop.global.apps.core.dto.PluginConfigInfo;
 import com.daou.dop.global.apps.core.enums.ScopeType;
+import com.daou.dop.global.apps.core.oauth.OAuthException;
+import com.daou.dop.global.apps.core.oauth.PluginOAuthService;
+import com.daou.dop.global.apps.core.plugin.PluginService;
 import com.daou.dop.global.apps.core.repository.OAuthCredentialRepository;
 import com.daou.dop.global.apps.core.repository.PluginConnectionRepository;
 import com.daou.dop.global.apps.domain.connection.PluginConnection;
@@ -14,6 +18,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,14 +39,20 @@ public class ConnectionService implements CredentialProvider {
     private final PluginConnectionRepository connectionRepository;
     private final OAuthCredentialRepository credentialRepository;
     private final ObjectMapper objectMapper;
+    private final PluginService pluginService;
+    private final PluginOAuthService pluginOAuthService;
 
     public ConnectionService(
             PluginConnectionRepository connectionRepository,
             OAuthCredentialRepository credentialRepository,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            PluginService pluginService,
+            @Lazy PluginOAuthService pluginOAuthService) {
         this.connectionRepository = connectionRepository;
         this.credentialRepository = credentialRepository;
         this.objectMapper = objectMapper;
+        this.pluginService = pluginService;
+        this.pluginOAuthService = pluginOAuthService;
     }
 
     // ========== CredentialProvider 구현 ==========
@@ -204,6 +215,73 @@ public class ConnectionService implements CredentialProvider {
         connection = connectionRepository.save(connection);
         log.info("Created simple connection: plugin={}, externalId={}", pluginId, externalId);
         return connection.getId();
+    }
+
+    // ========== 토큰 갱신 ==========
+
+    /**
+     * 만료된 토큰 갱신 및 저장
+     *
+     * @param pluginId   플러그인 ID
+     * @param externalId 외부 시스템 ID
+     * @return 갱신된 CredentialInfo (갱신 실패 시 Optional.empty)
+     */
+    @Transactional
+    public Optional<CredentialInfo> refreshAndSaveToken(String pluginId, String externalId) {
+        log.info("Refreshing token for plugin={}, externalId={}", pluginId, externalId);
+
+        // 1. Connection 조회
+        Optional<PluginConnection> connectionOpt = connectionRepository.findByPluginIdAndExternalId(pluginId, externalId);
+        if (connectionOpt.isEmpty()) {
+            log.warn("Connection not found: plugin={}, externalId={}", pluginId, externalId);
+            return Optional.empty();
+        }
+        PluginConnection connection = connectionOpt.get();
+
+        // 2. Credential 조회
+        Optional<OAuthCredential> credentialOpt = credentialRepository.findByConnectionId(connection.getId());
+        if (credentialOpt.isEmpty()) {
+            log.warn("Credential not found for connectionId={}", connection.getId());
+            return Optional.empty();
+        }
+        OAuthCredential credential = credentialOpt.get();
+
+        String refreshToken = credential.getRefreshToken();
+        if (refreshToken == null || refreshToken.isBlank()) {
+            log.warn("No refresh token available for connectionId={}", connection.getId());
+            return Optional.empty();
+        }
+
+        // 3. Plugin Config 조회
+        Optional<PluginConfigInfo> configOpt = pluginService.getPluginConfig(pluginId);
+        if (configOpt.isEmpty()) {
+            log.warn("Plugin config not found: {}", pluginId);
+            return Optional.empty();
+        }
+        PluginConfigInfo config = configOpt.get();
+
+        // 4. 토큰 갱신
+        try {
+            OAuthTokenInfo newTokenInfo = pluginOAuthService.refreshToken(pluginId, config, refreshToken);
+
+            // 5. DB 업데이트
+            credential.updateToken(
+                    newTokenInfo.accessToken(),
+                    newTokenInfo.refreshToken() != null ? newTokenInfo.refreshToken() : refreshToken,
+                    newTokenInfo.scope(),
+                    newTokenInfo.expiresAt()
+            );
+            credentialRepository.save(credential);
+
+            log.info("Successfully refreshed token for plugin={}, externalId={}", pluginId, externalId);
+
+            // 6. 갱신된 CredentialInfo 반환
+            return Optional.of(toCredentialInfo(connection, credential));
+
+        } catch (OAuthException e) {
+            log.error("Failed to refresh token for plugin={}, externalId={}: {}", pluginId, externalId, e.getMessage());
+            return Optional.empty();
+        }
     }
 
     // ========== 인증 정보 관리 ==========

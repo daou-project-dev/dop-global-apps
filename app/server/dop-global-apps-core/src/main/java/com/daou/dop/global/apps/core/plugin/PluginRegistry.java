@@ -8,6 +8,7 @@ import com.daou.dop.global.apps.plugin.sdk.OAuthHandler;
 import com.daou.dop.global.apps.plugin.sdk.PluginConfig;
 import com.daou.dop.global.apps.plugin.sdk.PluginExecutor;
 import com.daou.dop.global.apps.plugin.sdk.TokenInfo;
+import com.daou.dop.global.apps.plugin.sdk.WebhookHandler;
 import org.pf4j.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,21 @@ public class PluginRegistry implements PluginOAuthService {
         }
     }
 
+    @Override
+    public OAuthTokenInfo refreshToken(String pluginId, PluginConfigInfo config, String refreshToken)
+            throws OAuthException {
+        OAuthHandler handler = findOAuthHandler(pluginId)
+                .orElseThrow(() -> new OAuthException("OAuthHandler not found: " + pluginId));
+
+        try {
+            PluginConfig sdkConfig = toPluginConfig(config);
+            TokenInfo tokenInfo = handler.refreshToken(sdkConfig, refreshToken);
+            return toOAuthTokenInfo(tokenInfo);
+        } catch (com.daou.dop.global.apps.plugin.sdk.OAuthException e) {
+            throw new OAuthException(e.getMessage(), e);
+        }
+    }
+
     // ========== 플러그인 리소스 조회 ==========
 
     /**
@@ -107,6 +123,34 @@ public class PluginRegistry implements PluginOAuthService {
     public List<String> getSupportedPluginIds() {
         return pluginManager.getExtensions(OAuthHandler.class).stream()
                 .map(OAuthHandler::getPluginId)
+                .toList();
+    }
+
+    // ========== WebhookHandler 조회 ==========
+
+    /**
+     * WebhookHandler 조회
+     */
+    public Optional<WebhookHandler> findWebhookHandler(String pluginId) {
+        List<WebhookHandler> handlers = pluginManager.getExtensions(WebhookHandler.class);
+        return handlers.stream()
+                .filter(handler -> handler.getPluginId().equalsIgnoreCase(pluginId))
+                .findFirst();
+    }
+
+    /**
+     * 웹훅 지원 여부
+     */
+    public boolean supportsWebhook(String pluginId) {
+        return findWebhookHandler(pluginId).isPresent();
+    }
+
+    /**
+     * 웹훅 지원하는 플러그인 ID 목록
+     */
+    public List<String> getWebhookSupportedPluginIds() {
+        return pluginManager.getExtensions(WebhookHandler.class).stream()
+                .map(WebhookHandler::getPluginId)
                 .toList();
     }
 

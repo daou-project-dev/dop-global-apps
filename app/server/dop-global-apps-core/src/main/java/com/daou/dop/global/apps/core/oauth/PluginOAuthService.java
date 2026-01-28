@@ -37,4 +37,16 @@ public interface PluginOAuthService {
      */
     OAuthTokenInfo exchangeCode(String pluginId, PluginConfigInfo config, String code, String redirectUri)
             throws OAuthException;
+
+    /**
+     * 리프레시 토큰으로 액세스 토큰 갱신
+     *
+     * @param pluginId     플러그인 ID
+     * @param config       플러그인 설정
+     * @param refreshToken 리프레시 토큰
+     * @return 갱신된 토큰 정보
+     * @throws OAuthException 토큰 갱신 실패 시
+     */
+    OAuthTokenInfo refreshToken(String pluginId, PluginConfigInfo config, String refreshToken)
+            throws OAuthException;
 }
