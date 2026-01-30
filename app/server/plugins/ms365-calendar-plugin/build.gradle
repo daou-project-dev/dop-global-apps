@@ -22,7 +22,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.ms365.calendar.Ms365CalendarPlugin',
+        attributes 'Plugin-Class': 'com.daou.dop.gapps.plugin.ms365.calendar.Ms365CalendarPlugin',
                    'Plugin-Id': 'ms365-calendar-plugin',
                    'Plugin-Version': '0.0.1',
                    'Plugin-Provider': 'Daou Tech'

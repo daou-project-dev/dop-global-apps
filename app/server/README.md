@@ -6,11 +6,11 @@ Spring Boot + PF4J 기반 플러그인 서버
 
 ```
 server/
-├── dop-global-apps-api/            # HTTP 진입점 (Controller만)
+├── dop-gapps-api/            # HTTP 진입점 (Controller만)
 │   ├── oauth/controller/           # OAuth 컨트롤러
 │   ├── plugin/controller/          # 플러그인 컨트롤러
 │   └── execute/                    # 실행 컨트롤러
-├── dop-global-apps-core/           # 비즈니스 로직
+├── dop-gapps-core/           # 비즈니스 로직
 │   ├── dto/                        # DTO (ExecuteCommand, CredentialInfo 등)
 │   ├── enums/                      # ScopeType
 │   ├── repository/                 # Repository Port 인터페이스
@@ -19,8 +19,8 @@ server/
 │   ├── execute/                    # PluginExecutorService
 │   ├── credential/                 # CredentialProvider
 │   └── oauth/                      # PluginOAuthService, StateStorage
-├── dop-global-apps-domain/         # 도메인 모델 (Entity, Enum)
-├── dop-global-apps-infrastructure/ # 기술 구현체
+├── dop-gapps-domain/         # 도메인 모델 (Entity, Enum)
+├── dop-gapps-infrastructure/ # 기술 구현체
 │   ├── persistence/                # JPA Repository 구현체
 │   ├── oauth/                      # StateStorage 구현체
 │   └── crypto/                     # 암호화

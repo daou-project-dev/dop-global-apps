@@ -10,7 +10,7 @@ Slack 앱 설치를 위한 OAuth 2.0 플로우 구현
 
 ### 1. SlackProperties (설정)
 
-**경로**: `dop-global-apps-server/.../slack/SlackProperties.java`
+**경로**: `dop-gapps-server/.../slack/SlackProperties.java`
 
 ```java
 @ConfigurationProperties(prefix = "slack.app")
@@ -25,7 +25,7 @@ public record SlackProperties(
 
 ### 2. SlackOAuthService (OAuth 처리)
 
-**경로**: `dop-global-apps-server/.../slack/service/SlackOAuthService.java`
+**경로**: `dop-gapps-server/.../slack/service/SlackOAuthService.java`
 
 **주요 기능**:
 - `getInstallUrl()`: OAuth 설치 URL 생성 (redirect_uri 포함)
@@ -33,7 +33,7 @@ public record SlackProperties(
 
 ### 3. SlackController (HTTP 엔드포인트)
 
-**경로**: `dop-global-apps-server/.../slack/controller/SlackController.java`
+**경로**: `dop-gapps-server/.../slack/controller/SlackController.java`
 
 | 엔드포인트 | 설명 |
 |-----------|------|
@@ -42,7 +42,7 @@ public record SlackProperties(
 
 ### 4. SlackWorkspace Entity (토큰 저장)
 
-**경로**: `dop-global-apps-server/.../slack/entity/SlackWorkspace.java`
+**경로**: `dop-gapps-server/.../slack/entity/SlackWorkspace.java`
 
 | 필드 | 설명 |
 |------|------|
@@ -54,7 +54,7 @@ public record SlackProperties(
 
 ### 5. SlackTokenService (토큰 관리)
 
-**경로**: `dop-global-apps-server/.../slack/service/SlackTokenService.java`
+**경로**: `dop-gapps-server/.../slack/service/SlackTokenService.java`
 
 - 토큰 저장/조회
 - Jasypt 암호화 적용
@@ -113,7 +113,7 @@ server:
 ### Self-signed 인증서 생성
 
 ```bash
-cd dop-global-apps-server/src/main/resources
+cd dop-gapps-server/src/main/resources
 
 keytool -genkeypair -alias localhost \
   -keyalg RSA -keysize 2048 \
@@ -133,14 +133,14 @@ keytool -genkeypair -alias localhost \
 
 ### JasyptConfig
 
-**경로**: `dop-global-apps-core/.../crypto/JasyptConfig.java`
+**경로**: `dop-gapps-core/.../crypto/JasyptConfig.java`
 
 - Local 환경: 암호화 키 = "local"
 - 운영 환경: 환경변수 `OPS_CONK`에서 키 로드
 
 ### EncryptedStringConverter
 
-**경로**: `dop-global-apps-core/.../crypto/EncryptedStringConverter.java`
+**경로**: `dop-gapps-core/.../crypto/EncryptedStringConverter.java`
 
 - JPA Entity 필드 자동 암호화/복호화
 - SlackWorkspace.accessToken에 적용

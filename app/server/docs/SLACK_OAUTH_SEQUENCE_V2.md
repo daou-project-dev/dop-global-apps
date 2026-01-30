@@ -344,8 +344,8 @@ public record TokenInfo(
 ## 파일 구조
 
 ```
-dop-global-apps-core/
-└── com.daou.dop.global.apps.core
+dop-gapps-core/
+└── com.daou.dop.gapps.core
     ├── oauth/
     │   ├── OAuthHandler.java        # OAuth 인터페이스
     │   ├── StateStorage.java        # State 저장소 인터페이스
@@ -357,8 +357,8 @@ dop-global-apps-core/
     └── token/
         └── TokenStorage.java        # 토큰 저장소 인터페이스
 
-dop-global-apps-server/
-└── com.daou.dop.global.apps.server
+dop-gapps-server/
+└── com.daou.dop.gapps.server
     ├── plugin/
     │   ├── PluginOAuthController.java   # 범용 OAuth 컨트롤러
     │   ├── PluginEventController.java   # 범용 이벤트 컨트롤러
@@ -371,7 +371,7 @@ dop-global-apps-server/
         └── PluginToken.java             # 범용 토큰 Entity
 
 plugins/slack-plugin/
-└── com.daou.dop.global.apps.plugin.slack
+└── com.daou.dop.gapps.plugin.slack
     ├── SlackOAuthHandler.java       # OAuthHandler 구현
     ├── SlackEventHandler.java       # EventHandler 구현
     ├── SlackProperties.java         # Slack 설정 (clientId, secret 등)

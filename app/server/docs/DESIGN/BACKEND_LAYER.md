@@ -18,10 +18,10 @@
 
 ```
 server/
-├── dop-global-apps-core/           # Repository Port 인터페이스, StateStorage
-├── dop-global-apps-domain/         # Entity, Enum
-├── dop-global-apps-infrastructure/ # 기술 구현체 (JPA, Redis, Kafka, Crypto)
-├── dop-global-apps-api/            # Controller, Service (Entry Point)
+├── dop-gapps-core/           # Repository Port 인터페이스, StateStorage
+├── dop-gapps-domain/         # Entity, Enum
+├── dop-gapps-infrastructure/ # 기술 구현체 (JPA, Redis, Kafka, Crypto)
+├── dop-gapps-api/            # Controller, Service (Entry Point)
 │
 └── plugins/
     ├── plugin-sdk/                 # 플러그인 공통 SDK (외부 배포)
@@ -38,7 +38,7 @@ server/
 플러그인 개발에 필요한 인터페이스와 DTO 제공. 외부 개발자가 JAR만 의존하여 플러그인 개발 가능.
 
 ```
-com.daou.dop.global.apps.plugin.sdk/
+com.daou.dop.gapps.plugin.sdk/
 ├── PluginExecutor.java              # API 실행 인터페이스
 ├── OAuthHandler.java                # OAuth 처리 인터페이스
 ├── OAuthException.java              # OAuth 예외
@@ -74,7 +74,7 @@ dependencies {
 ### 2.2 core (핵심 비즈니스 로직)
 
 ```
-com.daou.dop.global.apps.core/
+com.daou.dop.gapps.core/
 ├── repository/                      # Repository Port 인터페이스
 │   ├── PluginRepository.java
 │   ├── PluginConnectionRepository.java
@@ -119,7 +119,7 @@ com.daou.dop.global.apps.core/
 **의존성**:
 ```groovy
 dependencies {
-    implementation project(':dop-global-apps-domain')  // 전이 불가
+    implementation project(':dop-gapps-domain')  // 전이 불가
     implementation project(':plugins:plugin-sdk')      // 전이 불가
 
     api(libs.pf4j)
@@ -135,7 +135,7 @@ dependencies {
 ### 2.3 domain (도메인 모델)
 
 ```
-com.daou.dop.global.apps.domain/
+com.daou.dop.gapps.domain/
 ├── plugin/
 │   └── Plugin.java                  # Entity
 │
@@ -176,7 +176,7 @@ dependencies {
 ### 2.4 infrastructure (기술 구현체)
 
 ```
-com.daou.dop.global.apps.infrastructure/
+com.daou.dop.gapps.infrastructure/
 ├── persistence/                     # DB (JPA) - core Repository 구현
 │   ├── JpaPluginRepository.java
 │   ├── JpaCompanyRepository.java
@@ -225,8 +225,8 @@ com.daou.dop.global.apps.infrastructure/
 **의존성**:
 ```groovy
 dependencies {
-    implementation project(':dop-global-apps-core')
-    implementation project(':dop-global-apps-domain')
+    implementation project(':dop-gapps-core')
+    implementation project(':dop-gapps-domain')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.kafka:spring-kafka'
@@ -241,7 +241,7 @@ dependencies {
 ### 2.5 api (HTTP 진입점)
 
 ```
-com.daou.dop.global.apps.api/
+com.daou.dop.gapps.api/
 ├── oauth/
 │   └── controller/
 │       └── PluginOAuthController.java  # OAuth 설치/콜백
@@ -270,10 +270,10 @@ com.daou.dop.global.apps.api/
 ```groovy
 dependencies {
     // Core (DTO, Service, Repository Port)
-    implementation project(':dop-global-apps-core')
+    implementation project(':dop-gapps-core')
 
     // Infrastructure (Repository 구현체, JpaConfig - 런타임 주입용)
-    implementation project(':dop-global-apps-infrastructure')
+    implementation project(':dop-gapps-infrastructure')
 
     // 플러그인 (런타임 로딩)
     runtimeOnly project(':plugins:slack-plugin')
@@ -288,7 +288,7 @@ dependencies {
 ### 2.6 plugins/slack-plugin (플러그인 구현체)
 
 ```
-com.daou.dop.global.apps.plugin.slack/
+com.daou.dop.gapps.plugin.slack/
 ├── SlackPlugin.java                 # PF4J Plugin 진입점
 ├── SlackOAuthHandler.java           # @Extension - OAuth 처리
 └── SlackPluginExecutor.java         # @Extension - API 실행
@@ -430,7 +430,7 @@ dependencies {
 // core/build.gradle (타입 격리 핵심)
 dependencies {
     // implementation = 전이 불가 → api에서 domain, plugin-sdk 타입 직접 사용 불가
-    implementation project(':dop-global-apps-domain')
+    implementation project(':dop-gapps-domain')
     implementation project(':plugins:plugin-sdk')
 
     api(libs.pf4j)
@@ -443,8 +443,8 @@ dependencies {
 
 // infrastructure/build.gradle
 dependencies {
-    implementation project(':dop-global-apps-core')
-    implementation project(':dop-global-apps-domain')
+    implementation project(':dop-gapps-core')
+    implementation project(':dop-gapps-domain')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.kafka:spring-kafka'
@@ -452,8 +452,8 @@ dependencies {
 
 // api/build.gradle (domain, plugin-sdk, infrastructure 타입 직접 사용 없음)
 dependencies {
-    implementation project(':dop-global-apps-core')
-    runtimeOnly project(':dop-global-apps-infrastructure')  // classpath용 (타입 의존 없음)
+    implementation project(':dop-gapps-core')
+    runtimeOnly project(':dop-gapps-infrastructure')  // classpath용 (타입 의존 없음)
 
     // plugin-sdk는 직접 의존하지 않음 - core를 통해 사용
     runtimeOnly project(':plugins:slack-plugin')
@@ -697,7 +697,7 @@ FLYWAY_URL=jdbc:postgresql://prod-db:5432/global_apps \
 FLYWAY_USER=admin \
 FLYWAY_PASSWORD=secret \
 FLYWAY_ENV=release \
-./gradlew :dop-global-apps-infrastructure:flywayMigrate
+./gradlew :dop-gapps-infrastructure:flywayMigrate
 ```
 
 ### 9.5 마이그레이션 파일 명명 규칙
@@ -750,20 +750,20 @@ infrastructure → core  ← 올바른 방향 (구현이 인터페이스에 의�
 
 **1. 모듈 생성**
 ```bash
-mkdir -p dop-global-apps-batch/src/main/java/com/daou/dop/global/apps/batch
+mkdir -p dop-gapps-batch/src/main/java/com/daou/dop/global/apps/batch
 ```
 
 **2. build.gradle 설정**
 ```groovy
-// dop-global-apps-batch/build.gradle
+// dop-gapps-batch/build.gradle
 plugins {
     id 'org.springframework.boot'
 }
 
 dependencies {
     // 필수: core + infrastructure
-    implementation project(':dop-global-apps-core')
-    implementation project(':dop-global-apps-infrastructure')
+    implementation project(':dop-gapps-core')
+    implementation project(':dop-gapps-infrastructure')
 
     // 플러그인 사용 시
     implementation project(':plugins:plugin-sdk')
@@ -777,7 +777,7 @@ dependencies {
 
 **3. Application 클래스**
 ```java
-package com.daou.dop.global.apps.batch;
+package com.daou.dop.gapps.batch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -794,7 +794,7 @@ public class DopGlobalAppsBatchApplication {
 
 **4. settings.gradle 등록**
 ```groovy
-include 'dop-global-apps-batch'
+include 'dop-gapps-batch'
 ```
 
 ### 10.4 체크리스트

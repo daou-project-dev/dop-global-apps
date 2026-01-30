@@ -7,7 +7,7 @@ dependencies {
     compileOnly project(':plugins:plugin-sdk')
 
     // V1 호환: core 의존 (추후 제거 예정)
-    implementation project(':dop-global-apps-core')
+    implementation project(':dop-gapps-core')
 
     implementation(libs.slack.bolt)
     implementation(libs.slack.api.client)
@@ -16,7 +16,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.slack.SlackPlugin',
+        attributes 'Plugin-Class': 'com.daou.dop.gapps.plugin.slack.SlackPlugin',
                    'Plugin-Id': 'slack-plugin',
                    'Plugin-Version': '0.0.1',
                    'Plugin-Provider': 'Daou Tech'

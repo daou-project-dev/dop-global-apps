@@ -305,7 +305,7 @@ curl -k -X POST https://localhost:8443/api/execute \
 **원인**: 플러그인 미로드
 
 **해결**:
-1. `dop-global-apps-api/build.gradle` 확인:
+1. `dop-gapps-api/build.gradle` 확인:
    ```groovy
    runtimeOnly project(':plugins:ms365-calendar-plugin')
    ```

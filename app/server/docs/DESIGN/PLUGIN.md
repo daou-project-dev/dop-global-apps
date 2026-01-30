@@ -801,10 +801,10 @@ public class SlackPluginExecutor implements PluginExecutor {
 
 ```
 server/
-├── dop-global-apps-core/           # 내부 유틸리티 (plugin-sdk 의존)
-├── dop-global-apps-domain/
-├── dop-global-apps-infrastructure/
-├── dop-global-apps-api/            # plugin-sdk 의존
+├── dop-gapps-core/           # 내부 유틸리티 (plugin-sdk 의존)
+├── dop-gapps-domain/
+├── dop-gapps-infrastructure/
+├── dop-gapps-api/            # plugin-sdk 의존
 │
 └── plugins/
     ├── plugin-sdk/                 # 🆕 플러그인 공통 SDK
@@ -826,7 +826,7 @@ server/
 ### 9.3 패키지 구조
 
 ```
-com.daou.dop.global.apps.plugin.sdk/
+com.daou.dop.gapps.plugin.sdk/
 ├── PluginExecutor.java             # API 실행 인터페이스
 ├── OAuthHandler.java               # OAuth 처리 인터페이스
 ├── OAuthException.java             # OAuth 예외
@@ -857,7 +857,7 @@ com.daou.dop.global.apps.plugin.sdk/
                   │ runtimeOnly
                   ▼
         ┌─────────────────────┐
-        │  dop-global-apps-api │
+        │  dop-gapps-api │
         │  (plugin-sdk 의존)   │
         └─────────────────────┘
 ```
@@ -899,7 +899,7 @@ dependencies {
 ```
 
 ```groovy
-// dop-global-apps-api/build.gradle
+// dop-gapps-api/build.gradle
 dependencies {
     implementation project(':plugins:plugin-sdk')
     runtimeOnly project(':plugins:slack-plugin')
@@ -1016,7 +1016,7 @@ cp build/libs/my-plugin-1.0.0.jar /path/to/server/plugins/
                               ▲
                               │ 의존
 ┌─────────────────────────────┴───────────────────────────────┐
-│                     dop-global-apps-core                     │
+│                     dop-gapps-core                     │
 │                                                             │
 │  내부 전용: 유틸리티, 헬퍼                                    │
 │  - 암호화 유틸 (plugin-sdk에서 분리)                          │

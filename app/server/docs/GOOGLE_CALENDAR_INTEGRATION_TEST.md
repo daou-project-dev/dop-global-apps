@@ -244,7 +244,7 @@ curl -k -s -X POST https://localhost:8443/api/execute \
 **원인**: 플러그인이 로드되지 않음
 
 **해결**:
-1. `dop-global-apps-api/build.gradle`에 의존성 추가:
+1. `dop-gapps-api/build.gradle`에 의존성 추가:
    ```groovy
    runtimeOnly project(':plugins:google-calendar-plugin')
    ```

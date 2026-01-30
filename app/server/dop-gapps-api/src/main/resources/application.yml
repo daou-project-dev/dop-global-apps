@@ -1,0 +1,25 @@
+# 공통 설정
+spring:
+  application:
+    name: gapps
+
+  profiles:
+    active: local
+
+  threads:
+    virtual:
+      enabled: true
+
+  jpa:
+    open-in-view: false
+
+pf4j:
+  plugins-dir: ${PF4J_PLUGINS_DIR:./plugins}
+  system-mode: ${PF4J_MODE:development}
+
+# 기본 로깅 설정
+logging:
+  level:
+    com.daou.dop.gapps: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO

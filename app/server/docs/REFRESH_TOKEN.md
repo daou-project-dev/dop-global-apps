@@ -97,7 +97,7 @@ sequenceDiagram
 
 ### 1. 만료 여부 확인
 
-**파일**: `dop-global-apps-core/.../dto/CredentialInfo.java`
+**파일**: `dop-gapps-core/.../dto/CredentialInfo.java`
 
 ```java
 /**
@@ -125,7 +125,7 @@ public boolean isExpired() {
 
 ### 2. 요청 시점 갱신
 
-**파일**: `dop-global-apps-core/.../execute/PluginExecutorService.java`
+**파일**: `dop-gapps-core/.../execute/PluginExecutorService.java`
 
 ```java
 private ExecuteRequest enrichWithCredential(ExecuteRequest request) {
@@ -154,7 +154,7 @@ private ExecuteRequest enrichWithCredential(ExecuteRequest request) {
 
 ### 3. 토큰 갱신 및 저장
 
-**파일**: `dop-global-apps-core/.../connection/ConnectionService.java`
+**파일**: `dop-gapps-core/.../connection/ConnectionService.java`
 
 ```java
 @Transactional

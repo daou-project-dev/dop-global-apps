@@ -47,7 +47,7 @@ docker-compose up -d
 
 ### 2. application-secret.yml 생성
 
-**경로**: `dop-global-apps-server/src/main/resources/application-secret.yml`
+**경로**: `dop-gapps-server/src/main/resources/application-secret.yml`
 
 ```yaml
 slack:

@@ -4,7 +4,7 @@
 
 ## 기술 스택
 
-- Java 25 + Virtual Threads
+- Java 25
 - Spring Boot 4.0.1
 - Gradle 9.x (Groovy DSL)
 - PF4J 3.14.1 (플러그인 시스템)
@@ -20,10 +20,10 @@
 
 ```
 server/
-├── dop-global-apps-api/     # HTTP 진입점 (Controller)
-├── dop-global-apps-core/    # 비즈니스 로직 (DTO, Service, Repository Port)
-├── dop-global-apps-domain/  # 도메인 모델 (Entity, Enum)
-├── dop-global-apps-infrastructure/  # 기술 구현체 (JPA, Crypto)
+├── dop-gapps-api/     # HTTP 진입점 (Controller)
+├── dop-gapps-core/    # 비즈니스 로직 (DTO, Service, Repository Port)
+├── dop-gapps-domain/  # 도메인 모델 (Entity, Enum)
+├── dop-gapps-infrastructure/  # 기술 구현체 (JPA, Crypto)
 └── plugins/
     ├── plugin-sdk/          # 플러그인 SDK
     └── slack-plugin/        # Slack 연동 플러그인
@@ -50,11 +50,25 @@ server/
 ## 코딩 규칙
 
 - Lombok 사용 (`@Getter`, `@Builder` 등)
-- 패키지 구조: `com.daou.dop.global.apps.*`
+- 패키지 구조: `com.daou.dop.gapps.*`
 - 플러그인 클래스: `@Extension` 어노테이션 필수
 - 테스트: JUnit 5 + Spring Boot Test
+
+### 어노테이션 순서
+
+의존성 낮은 순 → 높은 순 (보조 → 필수)
+
+```java
+// JPA Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Builder  // 필요 시
+@Entity
+@Table(...)
+public class Example { }
+```
 
 ## 의존성 관리
 
 - Version Catalog 사용: `gradle/libs.versions.toml`
-- 모듈 간 의존성: `implementation project(':dop-global-apps-core')`
+- 모듈 간 의존성: `implementation project(':dop-gapps-core')`

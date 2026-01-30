@@ -90,8 +90,8 @@ const handleSubmit = () => {
 | 파일 | 역할 |
 |------|------|
 | `server/plugins/plugin-sdk/.../PluginMetadata.java` | OAuth URL 정보 보유 |
-| `server/dop-global-apps-domain/.../Plugin.java` | metadata JSON에 OAuth 정보 저장 |
-| `server/dop-global-apps-api/.../PluginResponse.java` | API 응답 (OAuth URL 미포함) |
+| `server/dop-gapps-domain/.../Plugin.java` | metadata JSON에 OAuth 정보 저장 |
+| `server/dop-gapps-api/.../PluginResponse.java` | API 응답 (OAuth URL 미포함) |
 
 ## 개선 방안
 

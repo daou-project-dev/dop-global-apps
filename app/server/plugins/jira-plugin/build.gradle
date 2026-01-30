@@ -23,7 +23,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.jira.JiraPlugin',
+        attributes 'Plugin-Class': 'com.daou.dop.gapps.plugin.jira.JiraPlugin',
                    'Plugin-Id': 'jira-plugin',
                    'Plugin-Version': '0.0.1',
                    'Plugin-Provider': 'Daou Tech'

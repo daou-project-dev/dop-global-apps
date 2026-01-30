@@ -82,15 +82,15 @@ sequenceDiagram
 ## 주요 파일 위치 (현재)
 
 ### Core 모듈
-- `dop-global-apps-core/src/main/java/com/daou/dop/global/apps/core/slack/SlackTokenProvider.java`
-- `dop-global-apps-core/src/main/java/com/daou/dop/global/apps/core/slack/SlackInstallation.java`
-- `dop-global-apps-core/src/main/java/com/daou/dop/global/apps/core/slack/EncryptedStringConverter.java`
+- `dop-gapps-core/src/main/java/com/daou/dop/global/apps/core/slack/SlackTokenProvider.java`
+- `dop-gapps-core/src/main/java/com/daou/dop/global/apps/core/slack/SlackInstallation.java`
+- `dop-gapps-core/src/main/java/com/daou/dop/global/apps/core/slack/EncryptedStringConverter.java`
 
 ### Server 모듈
-- `dop-global-apps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackController.java`
-- `dop-global-apps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackOAuthService.java`
-- `dop-global-apps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackTokenService.java`
-- `dop-global-apps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackWorkspaceService.java`
+- `dop-gapps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackController.java`
+- `dop-gapps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackOAuthService.java`
+- `dop-gapps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackTokenService.java`
+- `dop-gapps-server/src/main/java/com/daou/dop/global/apps/server/slack/SlackWorkspaceService.java`
 
 ## 엔드포인트 (현재)
 

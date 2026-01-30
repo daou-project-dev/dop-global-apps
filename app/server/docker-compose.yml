@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: global-apps-postgres
+    container_name: gapps-postgres
     environment:
       POSTGRES_DB: global_apps
       POSTGRES_USER: postgres

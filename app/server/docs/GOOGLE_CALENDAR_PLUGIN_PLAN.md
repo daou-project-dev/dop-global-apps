@@ -52,7 +52,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.google.calendar.GoogleCalendarPlugin',
+        attributes 'Plugin-Class': 'com.daou.dop.gapps.plugin.google.calendar.GoogleCalendarPlugin',
                    'Plugin-Id': 'google-calendar-plugin',
                    'Plugin-Version': '0.0.1',
                    'Plugin-Provider': 'Daou Tech'
@@ -608,7 +608,7 @@ INSERT INTO plugin_connection (
 
 ```bash
 # JSON 키 파일 위치
-/Users/mrlhs/dop-global-apps/app/server/config/google-service-account.json
+/Users/mrlhs/dop-gapps/app/server/config/google-service-account.json
 
 # 테스트 실행
 curl -k -s -X POST https://localhost:8443/execute \

@@ -12,8 +12,8 @@
 
 ```
 server/
-├── dop-global-apps-core/        ✅ 생성됨 (V1 인터페이스)
-├── dop-global-apps-server/      ✅ 생성됨 (V2 통합 완료)
+├── dop-gapps-core/        ✅ 생성됨 (V1 인터페이스)
+├── dop-gapps-server/      ✅ 생성됨 (V2 통합 완료)
 └── plugins/
     ├── plugin-sdk/              ✅ 신규 (V2 인터페이스/DTO)
     └── slack-plugin/            ✅ V2 구현 완료
@@ -108,9 +108,9 @@ server/
 | 모듈 | 상태 | 우선순위 |
 |------|------|---------|
 | `plugins/plugin-sdk` | ✅ 완료 | - |
-| `dop-global-apps-domain` | ✅ 완료 | - |
-| `dop-global-apps-infrastructure` | ✅ 완료 | - |
-| `dop-global-apps-api` | ⚠️ server 모듈로 유지 | P3 |
+| `dop-gapps-domain` | ✅ 완료 | - |
+| `dop-gapps-infrastructure` | ✅ 완료 | - |
+| `dop-gapps-api` | ⚠️ server 모듈로 유지 | P3 |
 
 ### 2.2 테이블 (DOMAIN.md)
 
@@ -312,14 +312,14 @@ xxx ──────┘           └──▶ domain
 // core/build.gradle
 dependencies {
     api project(':plugins:plugin-sdk')  // 추가
-    api project(':dop-global-apps-domain')
+    api project(':dop-gapps-domain')
 }
 
 // api/build.gradle
 dependencies {
-    implementation project(':dop-global-apps-core')
+    implementation project(':dop-gapps-core')
     // plugin-sdk 제거 (core에서 전이됨)
-    runtimeOnly project(':dop-global-apps-infrastructure')
+    runtimeOnly project(':dop-gapps-infrastructure')
     runtimeOnly project(':plugins:slack-plugin')
 }
 ```

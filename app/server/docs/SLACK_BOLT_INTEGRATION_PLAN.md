@@ -23,8 +23,8 @@ jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-
 ```
 
 ### 모듈별 build.gradle
-- **dop-global-apps-core**: `jasypt-spring-boot-starter` (암호화 공통 모듈)
-- **dop-global-apps-server**: `spring-boot-starter-data-redis`, `slack-bolt-servlet`
+- **dop-gapps-core**: `jasypt-spring-boot-starter` (암호화 공통 모듈)
+- **dop-gapps-server**: `spring-boot-starter-data-redis`, `slack-bolt-servlet`
 - **plugins/slack-plugin**: `slack-bolt`, `slack-api-client`
 
 ---
@@ -33,7 +33,7 @@ jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  dop-global-apps-server                                     │
+│  dop-gapps-server                                     │
 │  - HTTP 엔드포인트 (SlackController)                        │
 │  - Redis 설정/유틸리티                                       │
 │  - Entity/Repository (SlackWorkspace)                       │
@@ -41,7 +41,7 @@ jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-
 └─────────────────────────────────────────────────────────────┘
                               │
 ┌─────────────────────────────┴───────────────────────────────┐
-│  dop-global-apps-core                                       │
+│  dop-gapps-core                                       │
 │  - SlackBoltExtension (ExtensionPoint 인터페이스)           │
 │  - SlackTokenProvider (토큰 조회 인터페이스)                 │
 │  - DTO 클래스                                               │
@@ -70,7 +70,7 @@ jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-
 ## 4. 패키지 구조
 
 ```
-dop-global-apps-server/src/main/java/.../server/
+dop-gapps-server/src/main/java/.../server/
 ├── config/
 │   ├── RedisConfig.java
 │   └── CryptoConfig.java
@@ -93,7 +93,7 @@ dop-global-apps-server/src/main/java/.../server/
 │       ├── SlackRateLimiter.java
 │       └── SlackOAuthStateStore.java
 
-dop-global-apps-core/src/main/java/.../core/
+dop-gapps-core/src/main/java/.../core/
 ├── crypto/                              # 암호화 공통 모듈
 │   ├── EncryptionService.java           # 인터페이스
 │   ├── Aes256EncryptionService.java     # AES-256 구현체

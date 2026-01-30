@@ -27,8 +27,8 @@ jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-
 
 | 모듈 | 의존성 |
 |------|--------|
-| dop-global-apps-core | `jasypt-spring-boot-starter`, `slack-bolt` (compileOnly) |
-| dop-global-apps-server | `slack-bolt` |
+| dop-gapps-core | `jasypt-spring-boot-starter`, `slack-bolt` (compileOnly) |
+| dop-gapps-server | `slack-bolt` |
 | plugins/slack-plugin | `slack-bolt`, `slack-api-client` |
 
 ---
@@ -38,7 +38,7 @@ jasypt-spring-boot-starter = { module = "com.github.ulisesbocchio:jasypt-spring-
 ### Core 모듈
 
 ```
-dop-global-apps-core/src/main/java/com/daou/dop/global/apps/core/
+dop-gapps-core/src/main/java/com/daou/dop/global/apps/core/
 ├── crypto/
 │   ├── JasyptConfig.java           # Jasypt 암호화 설정
 │   └── EncryptedStringConverter.java # JPA 필드 암호화 Converter
@@ -57,7 +57,7 @@ dop-global-apps-core/src/main/java/com/daou/dop/global/apps/core/
 ### Server 모듈
 
 ```
-dop-global-apps-server/src/main/java/com/daou/dop/global/apps/server/
+dop-gapps-server/src/main/java/com/daou/dop/global/apps/server/
 ├── execute/
 │   ├── ExecuteController.java      # /execute API 엔드포인트
 │   └── PluginExecutorService.java  # 플러그인 실행 서비스

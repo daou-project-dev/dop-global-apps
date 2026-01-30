@@ -1,5 +1,7 @@
 # 플러그인 개발 가이드
 
+> 코딩 규칙 및 템플릿: [CLAUDE.md](./CLAUDE.md)
+
 ## 디렉토리 구조
 
 ```
@@ -139,7 +141,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.myplugin.MyPlugin',
+        attributes 'Plugin-Class': 'com.daou.dop.gapps.plugin.myplugin.MyPlugin',
                    'Plugin-Id': 'my-plugin',      // ⚠️ PLUGIN_ID와 일치
                    'Plugin-Version': '0.0.1',
                    'Plugin-Provider': 'Daou Tech'
@@ -175,7 +177,7 @@ curl http://localhost:8080/api/plugins/my-plugin/form-config
    ```groovy
    include ':plugins:my-plugin'
    ```
-4. `dop-global-apps-api/build.gradle`에 의존성 추가
+4. `dop-gapps-api/build.gradle`에 의존성 추가
    ```groovy
    runtimeOnly project(':plugins:my-plugin')
    ```

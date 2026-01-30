@@ -49,7 +49,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Plugin-Class': 'com.daou.dop.global.apps.plugin.google.calendar.GoogleCalendarPlugin',
+        attributes 'Plugin-Class': 'com.daou.dop.gapps.plugin.google.calendar.GoogleCalendarPlugin',
                    'Plugin-Id': 'google-calendar-plugin',
                    'Plugin-Version': '0.0.1',
                    'Plugin-Provider': 'Daou Tech'
