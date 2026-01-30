@@ -35,7 +35,6 @@ export function usePluginAuth() {
   const [currentPlugin, setCurrentPlugin] = useAtom(currentPluginAtom);
   const [currentDatasource] = useAtom(currentDatasourceAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedPlugin, setSelectedPlugin] = useState<Plugin | null>(null);
   const queryClient = useQueryClient();
 
   // 플러그인 목록 조회
@@ -58,43 +57,46 @@ export function usePluginAuth() {
   // 플러그인 선택 핸들러
   const handlePluginSelect = useCallback(
     (plugin: Plugin) => {
-      setSelectedPlugin(plugin);
       setCurrentPlugin({
         pluginId: plugin.pluginId,
         pluginName: plugin.name,
         authType: plugin.authType,
         formConfig: [],
+        authConfig: plugin.authConfig,
       });
     },
     [setCurrentPlugin]
   );
 
-  // formConfig 동기화
+  // formConfig 동기화 (authConfig 유지)
   useEffect(() => {
     if (formData?.formConfig && formData.formConfig.pluginId === currentPlugin.pluginId) {
-      setCurrentPlugin(formData.formConfig);
+      setCurrentPlugin((prev) => ({
+        ...formData.formConfig,
+        authConfig: prev.authConfig,
+      }));
     }
   }, [formData?.formConfig, currentPlugin.pluginId, setCurrentPlugin]);
 
   // 인증 처리
   const handleSubmit = useCallback(async () => {
-    if (!selectedPlugin?.authConfig) {
+    if (!currentPlugin.authConfig) {
       alert('지원하지 않는 인증 방식입니다.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      handleAuthConfig(selectedPlugin.authConfig);
+      handleAuthConfig(currentPlugin.authConfig);
 
-      if (selectedPlugin.authConfig.method === 'redirect') {
+      if (currentPlugin.authConfig.method === 'redirect') {
         // OAuth는 팝업에서 처리 후 콜백으로 완료
         queryClient.invalidateQueries({ queryKey: connectionQueries.all().queryKey });
       }
     } finally {
       setIsSubmitting(false);
     }
-  }, [selectedPlugin, queryClient]);
+  }, [currentPlugin.authConfig, queryClient]);
 
   return {
     currentPlugin,

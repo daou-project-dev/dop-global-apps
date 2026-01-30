@@ -71,6 +71,7 @@ export interface PluginForm {
   pluginName: string;
   authType: AuthType | string; // AuthType 또는 백엔드 응답값
   formConfig: ControlProps[]; // The "form.json"
+  authConfig?: AuthConfig;
 }
 
 // --- Test Form Types ---
