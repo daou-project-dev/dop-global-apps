@@ -1,0 +1,233 @@
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #222;
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  min-width: 180px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #08a7bf;
+  box-shadow: 0 0 0 2px rgba(8, 167, 191, 0.2);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  font-size: 0.875rem;
+  color: #333;
+}
+
+.table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.emptyRow {
+  text-align: center;
+  color: #888;
+  padding: 48px 16px;
+  font-size: 0.875rem;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.statusRECEIVED {
+  background: #e7f3ff;
+  color: #0066cc;
+}
+
+.statusSUCCESS {
+  background: #d4edda;
+  color: #155724;
+}
+
+.statusFAILED {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.viewButton {
+  padding: 6px 14px;
+  background: #08a7bf;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.viewButton:hover {
+  background: #079aae;
+}
+
+.loading,
+.error {
+  padding: 48px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.error {
+  color: #c00;
+  font-size: 0.875rem;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .title {
+    color: #eee;
+  }
+
+  .filters {
+    background-color: #2a2a2a;
+  }
+
+  .filterLabel {
+    color: #aaa;
+  }
+
+  .select {
+    background: #333;
+    color: #eee;
+    border-color: #444;
+  }
+
+  .select:focus {
+    border-color: #08a7bf;
+  }
+
+  .tableWrapper {
+    background-color: #2a2a2a;
+  }
+
+  .table th {
+    background: #333;
+    color: #ddd;
+    border-bottom-color: #444;
+  }
+
+  .table td {
+    color: #ddd;
+    border-bottom-color: #3a3a3a;
+  }
+
+  .table tbody tr:hover {
+    background: #333;
+  }
+
+  .emptyRow {
+    color: #888;
+  }
+
+  .statusRECEIVED {
+    background: rgba(0, 102, 204, 0.2);
+    color: #6ab0ff;
+  }
+
+  .statusSUCCESS {
+    background: rgba(40, 167, 69, 0.2);
+    color: #7ddf8e;
+  }
+
+  .statusFAILED {
+    background: rgba(220, 53, 69, 0.2);
+    color: #f5a0a7;
+  }
+
+  .loading,
+  .error {
+    background-color: #2a2a2a;
+  }
+
+  .loading {
+    color: #aaa;
+  }
+}

@@ -1,5 +1,6 @@
 package com.daou.dop.global.apps.core.execute;
 
+import com.daou.dop.global.apps.core.connection.ConnectionService;
 import com.daou.dop.global.apps.core.credential.CredentialProvider;
 import com.daou.dop.global.apps.core.dto.CredentialInfo;
 import com.daou.dop.global.apps.core.dto.ExecuteCommand;
@@ -26,11 +27,16 @@ public class PluginExecutorService {
 
     private final PluginManager pluginManager;
     private final CredentialProvider credentialProvider;
+    private final ConnectionService connectionService;
     private final Map<String, PluginExecutor> executorMap = new ConcurrentHashMap<>();
 
-    public PluginExecutorService(PluginManager pluginManager, CredentialProvider credentialProvider) {
+    public PluginExecutorService(
+            PluginManager pluginManager,
+            CredentialProvider credentialProvider,
+            ConnectionService connectionService) {
         this.pluginManager = pluginManager;
         this.credentialProvider = credentialProvider;
+        this.connectionService = connectionService;
     }
 
     @PostConstruct
@@ -99,16 +105,32 @@ public class PluginExecutorService {
         }
 
         String pluginId = request.pluginId();
-        Optional<CredentialInfo> credential = credentialProvider.getCredentialInfo(pluginId, externalId);
+        Optional<CredentialInfo> credentialOpt = credentialProvider.getCredentialInfo(pluginId, externalId);
 
-        return credential
-                .map(info -> ExecuteRequest.builder()
-                        .pluginId(request.pluginId())
-                        .action(request.action())
-                        .params(request.params())
-                        .credential(toCredentialContext(info))
-                        .build())
-                .orElse(request);
+        if (credentialOpt.isEmpty()) {
+            return request;
+        }
+
+        CredentialInfo credential = credentialOpt.get();
+
+        // 토큰 만료 확인 및 갱신
+        if (credential.isExpired()) {
+            log.info("Token expired for plugin={}, externalId={}, attempting refresh", pluginId, externalId);
+            Optional<CredentialInfo> refreshedCredential = connectionService.refreshAndSaveToken(pluginId, externalId);
+            if (refreshedCredential.isPresent()) {
+                credential = refreshedCredential.get();
+                log.info("Token refreshed successfully for plugin={}, externalId={}", pluginId, externalId);
+            } else {
+                log.warn("Token refresh failed for plugin={}, externalId={}, using expired token", pluginId, externalId);
+            }
+        }
+
+        return ExecuteRequest.builder()
+                .pluginId(request.pluginId())
+                .action(request.action())
+                .params(request.params())
+                .credential(toCredentialContext(credential))
+                .build();
     }
 
     public boolean hasPlugin(String pluginId) {

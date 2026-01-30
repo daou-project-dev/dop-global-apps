@@ -39,10 +39,16 @@ public interface PluginOAuthService {
             throws OAuthException;
 
     /**
-     * PKCE 필요 여부
+     * 리프레시 토큰으로 액세스 토큰 갱신
      *
-     * @param pluginId 플러그인 ID
-     * @return PKCE 필요 여부
+     * @param pluginId     플러그인 ID
+     * @param config       플러그인 설정
+     * @param refreshToken 리프레시 토큰
+     * @return 갱신된 토큰 정보
+     * @throws OAuthException 토큰 갱신 실패 시
      */
+    OAuthTokenInfo refreshToken(String pluginId, PluginConfigInfo config, String refreshToken)
+            throws OAuthException;
+     
     boolean requiresPkce(String pluginId);
 }
