@@ -1,5 +1,7 @@
 package com.daou.dop.global.apps.plugin.sdk;
 
+import lombok.Builder;
+
 import java.util.Map;
 
 /**
@@ -10,6 +12,7 @@ import java.util.Map;
  * @param params     액션 파라미터
  * @param credential 인증 정보
  */
+@Builder
 public record ExecuteRequest(
         String pluginId,
         String action,
@@ -65,40 +68,5 @@ public record ExecuteRequest(
             return Boolean.parseBoolean((String) value);
         }
         return null;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private String pluginId;
-        private String action;
-        private Map<String, Object> params;
-        private CredentialContext credential;
-
-        public Builder pluginId(String pluginId) {
-            this.pluginId = pluginId;
-            return this;
-        }
-
-        public Builder action(String action) {
-            this.action = action;
-            return this;
-        }
-
-        public Builder params(Map<String, Object> params) {
-            this.params = params;
-            return this;
-        }
-
-        public Builder credential(CredentialContext credential) {
-            this.credential = credential;
-            return this;
-        }
-
-        public ExecuteRequest build() {
-            return new ExecuteRequest(pluginId, action, params, credential);
-        }
     }
 }

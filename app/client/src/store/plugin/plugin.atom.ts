@@ -7,6 +7,7 @@ const EMPTY_PLUGIN: PluginForm = {
   pluginName: '',
   authType: '',
   formConfig: [],
+  authConfig: undefined,
 };
 
 export const currentPluginAtom = atom<PluginForm>(EMPTY_PLUGIN);
